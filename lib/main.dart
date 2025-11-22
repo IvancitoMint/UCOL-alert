@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
-import 'signup_page.dart';
+import 'login-signup/login_main_page.dart';
+/*
+import 'login-signup/login_user_page.dart';
+import 'login-signup/signup_user_page.dart';
+*/
 void main() {
   runApp(const MyApp());
 }
@@ -18,9 +21,10 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFEEEEEE),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
       ),
-      home: const LoginPage(), // Pantalla de login
+      // ---------- LOGIN PAGE AS HOME SCREEN ---------- //
+      home: const LoginMainPage(),
       routes: {
-        '/signup': (context) => const SignUpPage(),
+        '/login': (context) => const LoginMainPage(),
       },
     );
   }

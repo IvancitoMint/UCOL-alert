@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
+import 'login_user_page.dart';
 
-class SignUpPage extends StatelessWidget {
-  const SignUpPage({super.key});
+class SignUp_User_Page extends StatelessWidget {
+  const SignUp_User_Page({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class SignUpPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    MaterialPageRoute(builder: (context) => const LoginUserPage()),
                   );
                 },
                 child: const Text('Crear cuenta',

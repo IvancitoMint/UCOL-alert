@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import '../home_page.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class LoginAdminPage extends StatelessWidget {
+  const LoginAdminPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class LoginPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Bienvenido', textAlign: TextAlign.center,
+              const Text('Bienvenido administrador', textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               Text('Inicia sesión para continuar',
@@ -57,15 +57,6 @@ class LoginPage extends StatelessWidget {
                   child: const Text('Iniciar sesión',
                     style: TextStyle(color: Colors.white, fontSize: 17)),
                 ),
-              ),
-              const SizedBox(height: 25),
-
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, '/signup'),
-                child: Text('¿No tienes cuenta? Crear nueva cuenta',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey.shade900,
-                    decoration: TextDecoration.underline)),
               ),
             ],
           ),

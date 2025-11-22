@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-//import 'report_modal.dart';
+
+import 'reports/report_modal.dart';
+import 'reports/emergency_modal.dart';
+
+import 'sidebar/sidebar_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -8,8 +12,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F4F4),
-
-      // ----------- APP BAR SUPERIOR ----------------
+      // ---------- TOP APP BAR  ---------- //
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -23,7 +26,11 @@ class HomePage extends StatelessWidget {
         ),
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.black87),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context, MaterialPageRoute(builder: (_) => SideBar()));
+          },
         ),
       ),
 
@@ -43,7 +50,7 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // -------- TARJETA DE REPORTE ----------
+            // ---------- REPORT CARD ---------- //
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -61,7 +68,7 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   
-                  // HEADER USUARIO
+                  // ---------- USER HEADER ---------- //
                   Row(
                     children: [
                       const CircleAvatar(
@@ -154,6 +161,7 @@ class HomePage extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
+                  // ---------- INTERACTIONS ---------- //
                   Row(
                     children: [
                       Icon(Icons.thumb_up_alt_outlined,
@@ -176,9 +184,9 @@ class HomePage extends StatelessWidget {
         ),
       ),
 
-      // ----------- BOTTOM NAVIGATION ------------
+      // ---------- BOTTOM NAVIGATION ---------- //
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 15),
         decoration: const BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -192,7 +200,16 @@ class HomePage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Column(
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const HomePage(),
+              );
+            },
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: const [
                 Icon(Icons.home, color: Colors.black87),
@@ -200,22 +217,43 @@ class HomePage extends StatelessWidget {
                 Text("Inicio", style: TextStyle(fontSize: 12)),
               ],
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.add_circle_outline, color: Colors.blue),
-                SizedBox(height: 4),
-                Text("Reportar", style: TextStyle(fontSize: 12)),
-              ],
+          ),
+            GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => const ReportModal(),
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.add_circle_outline, color: Colors.blue),
+                  SizedBox(height: 4),
+                  Text("Reportar", style: TextStyle(fontSize: 12)),
+                ],
+              ),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.emergency_outlined, color: Colors.red),
-                SizedBox(height: 4),
-                Text("Emergencia", style: TextStyle(fontSize: 12)),
-              ],
-            ),
+            GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => const EmergencyModal(),
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.emergency_outlined, color: Colors.red),
+                  SizedBox(height: 4),
+                  Text("Emergencia", style: TextStyle(fontSize: 12)),
+                ],
+              ),
+            )
           ],
         ),
       ),
