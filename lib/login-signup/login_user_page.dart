@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'signup_user_page.dart';
 import '../home_page.dart';
 
 class LoginUserPage extends StatelessWidget {
@@ -61,7 +63,12 @@ class LoginUserPage extends StatelessWidget {
               const SizedBox(height: 25),
 
               GestureDetector(
-                onTap: () => Navigator.pushNamed(context, '/signup'),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SignUpUserPage(),
+                  ),
+                ),
                 child: Text('¿No tienes cuenta? Crear nueva cuenta',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey.shade900,
