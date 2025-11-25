@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../home_page.dart';
+import '../admin/admin_home_page.dart';
 
 class LoginAdminPage extends StatelessWidget {
   const LoginAdminPage({super.key});
@@ -50,7 +50,7 @@ class LoginAdminPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
+                    MaterialPageRoute(builder: (context) => const AdminMain()),
                   );
                     //print('Cuenta: \${accountController.text}');
                   },
