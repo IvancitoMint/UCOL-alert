@@ -61,7 +61,7 @@ class LoginUserPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 25),
-
+/*
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
@@ -73,6 +73,28 @@ class LoginUserPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey.shade900,
                     decoration: TextDecoration.underline)),
+              ),
+              */
+              GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => const SignUpUserPage(),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    '¿No tienes cuenta? Crear nueva cuenta',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey.shade900,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

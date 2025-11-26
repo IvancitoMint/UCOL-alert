@@ -38,7 +38,7 @@ List<Reporte> reportesDemo = [
     tipo: "urgente",
     detalles: "La fuga está esparciendo agua hacia toda la calle.",
   ),
-
+/*
   Reporte(
     id: "3",
     categoria: "El felpudo",
@@ -48,4 +48,5 @@ List<Reporte> reportesDemo = [
     tipo: "urgente",
     detalles: "Tiene un culito bien paradito",
   ),
+*/
 ];
