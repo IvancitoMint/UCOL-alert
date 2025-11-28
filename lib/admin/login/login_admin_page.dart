@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../admin_home_page.dart';
+import '../home_page.dart';
 import '../../user/utils/app_messages.dart';
 
 class LoginAdminPage extends StatefulWidget {

@@ -120,7 +120,7 @@ class DetalleReportePage extends StatelessWidget {
                 ElevatedButton.icon(
                   icon: const Icon(Icons.check, color: Colors.white),
                   label: const Text(
-                    "Validar",
+                    "Aceptar",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -134,9 +134,8 @@ class DetalleReportePage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Reporte validado")),
-                    );
+                    //---------- GET BACK TO home_page ---------- //
+                    Navigator.pop(context, "approved");
                   },
                 ),
                 ElevatedButton.icon(
@@ -153,9 +152,7 @@ class DetalleReportePage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Reporte eliminado")),
-                    );
+                    Navigator.pop(context, "rejected");
                   },
                 ),
               ],

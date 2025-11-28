@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFEEEEEE),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
       ),
+      
       // ---------- LOGIN PAGE AS HOME SCREEN ---------- //
       home: const LoginMainPage(),
       routes: {

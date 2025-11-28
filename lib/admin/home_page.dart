@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'models.dart';
-import 'reportDetails.dart';
+import 'report_details.dart';
+import '../user/utils/app_messages.dart';
 
 class AdminMain extends StatelessWidget {
   const AdminMain({super.key});
@@ -33,13 +35,21 @@ class AdminMain extends StatelessWidget {
                   title: Text(r.categoria),
                   subtitle: Text(r.descripcion),
                   trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => DetalleReportePage(reporte: r),
                       ),
                     );
+
+                    if (result == "approved") {
+                      AppMessages().showSuccess(context, "Reporte aprobado");
+                    }
+
+                    if (result == "rejected") {
+                      AppMessages().showError(context, "Reporte rechazado");
+                    }
                   },
                 );
               },
