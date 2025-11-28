@@ -1,18 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-import 'models.dart';
-import 'report_details.dart';
-import '../user/utils/app_messages.dart';
+import 'models.dart'; // Modelo Reporte + Fecha
+import 'report_details.dart'; // Pantalla de detalles
 
-class AdminMain extends StatelessWidget {
+class AdminMain extends StatefulWidget {
   const AdminMain({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final reportesFiltrados = reportesDemo
-        .where((r) => r.tipo == "normal")
-        .toList();
+  State<AdminMain> createState() => _AdminMainState();
+}
 
+class _AdminMainState extends State<AdminMain> {
+  late Future<List<Reporte>> futureReportes;
+
+  // URL de FastAPI
+  final String apiUrl = "http://192.168.100.25:8000/reportes";
+
+  @override
+  void initState() {
+    super.initState();
+    futureReportes = fetchReportesNormales();
+  }
+
+  // ==========================
+  //   OBTENER REPORTES
+  // ==========================
+  Future<List<Reporte>> fetchReportesNormales() async {
+    final res = await http.get(Uri.parse(apiUrl));
+
+    if (res.statusCode != 200) {
+      throw Exception("Error cargando reportes");
+    }
+
+    final List data = json.decode(res.body);
+
+    return data
+        .map((json) => Reporte.fromJson(json))
+        .where((r) => r.emergencia == false)
+        .where((r) => r.estatus == "No revisado")
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Panel de administrador")),
       body: Column(
@@ -20,36 +52,52 @@ class AdminMain extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              "Reportes pendientes",
+              "Reportes No revisados",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
 
-          // Reportes
+          // ==========================
+          //     LISTA DESDE BACKEND
+          // ==========================
           Expanded(
-            child: ListView.builder(
-              itemCount: reportesFiltrados.length,
-              itemBuilder: (context, i) {
-                final r = reportesFiltrados[i];
-                return ListTile(
-                  title: Text(r.categoria),
-                  subtitle: Text(r.descripcion),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DetalleReportePage(reporte: r),
-                      ),
+            child: FutureBuilder<List<Reporte>>(
+              future: futureReportes,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                }
+
+                final reportes = snapshot.data!;
+
+                if (reportes.isEmpty) {
+                  return const Center(
+                    child: Text("No hay reportes pendientes."),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: reportes.length,
+                  itemBuilder: (context, i) {
+                    final r = reportes[i];
+
+                    return ListTile(
+                      title: Text(r.categoria),
+                      subtitle: Text(r.descripcion),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => DetalleReportePage(reporte: r),
+                          ),
+                        );
+                      },
                     );
-
-                    if (result == "approved") {
-                      AppMessages().showSuccess(context, "Reporte aprobado");
-                    }
-
-                    if (result == "rejected") {
-                      AppMessages().showError(context, "Reporte rechazado");
-                    }
                   },
                 );
               },

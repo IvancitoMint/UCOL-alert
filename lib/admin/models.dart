@@ -1,58 +1,75 @@
 class Reporte {
   final String id;
-  final String categoria;
+  final String autor;
+  final String estatus;
   final String descripcion;
-  final String usuario;
-  final String fecha;
-  final String tipo; // "normal" o "urgente"
-  final String detalles;
+  final String ubicacion;
+  final String categoria;
+  final String foto;
+  final List likes;
+  final List comentarios;
+  final bool emergencia;
+  final Fecha fecha;
 
   Reporte({
     required this.id,
-    required this.categoria,
+    required this.autor,
+    required this.estatus,
     required this.descripcion,
-    required this.usuario,
+    required this.ubicacion,
+    required this.categoria,
+    required this.foto,
+    required this.likes,
+    required this.comentarios,
+    required this.emergencia,
     required this.fecha,
-    required this.tipo,
-    required this.detalles,
   });
+
+  factory Reporte.fromJson(Map<String, dynamic> json) {
+    return Reporte(
+      id: json['id'],
+      autor: json['autor'],
+      estatus: json['estatus'],
+      descripcion: json['descripcion'],
+      ubicacion: json['ubicacion'],
+      categoria: json['categoria'],
+      foto: json['foto'],
+      likes: json['likes'] ?? [],
+      comentarios: json['comentarios'] ?? [],
+      emergencia: json['emergencia'],
+      fecha: Fecha.fromJson(json['fecha']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "autor": autor,
+      "estatus": estatus,
+      "descripcion": descripcion,
+      "ubicacion": ubicacion,
+      "categoria": categoria,
+      "foto": foto,
+      "likes": likes,
+      "comentarios": comentarios,
+      "emergencia": emergencia,
+      "fecha": {
+        "creacion": fecha.creacion.toString(),
+        "actualizacion": fecha.actualizacion.toString(),
+      },
+    };
+  }
 }
 
-List<Reporte> reportesDemo = [
-  Reporte(
-    id: "1",
-    categoria: "Basura",
-    descripcion: "Acumulación de basura en la calle",
-    usuario: "Juan Pérez",
-    fecha: "2025-11-20",
-    tipo: "normal",
-    detalles: "Hay bolsas acumuladas desde hace 3 días en la esquina.",
-  ),
-  Reporte(
-    id: "2",
-    categoria: "Fuga de agua",
-    descripcion: "Fuga fuerte en tubería",
-    usuario: "Ana López",
-    fecha: "2025-11-20",
-    tipo: "urgente",
-    detalles: "La fuga está esparciendo agua hacia toda la calle.",
-  ),
-  Reporte(
-    id: "3",
-    categoria: "Suciedad",
-    descripcion: "Ningun retrete en la baños funciona",
-    usuario: "Manolo Villalobos",
-    fecha: "2025-08-20",
-    tipo: "normal",
-    detalles: "Estan todos los retretes esta obstruidos",
-  ),
-  Reporte(
-    id: "4",
-    categoria: "Daños inmoviliario",
-    descripcion: "Sillas rotas",
-    usuario: "Joaquin Quintero",
-    fecha: "2025-06-12",
-    tipo: "normal",
-    detalles: "Hay 3 sillas rotas en la aula 5 del edifico B",
-  ),
-];
+class Fecha {
+  final String creacion;
+  final String actualizacion;
+
+  Fecha({required this.creacion, required this.actualizacion});
+
+  factory Fecha.fromJson(Map<String, dynamic> json) {
+    return Fecha(
+      creacion: json['creacion'].toString(),
+      actualizacion: json['actualizacion'].toString(),
+    );
+  } 
+}
