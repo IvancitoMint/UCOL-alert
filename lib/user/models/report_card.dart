@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/report_model.dart';
 
+import 'likes_model.dart';
+import 'likes_card.dart';
+
 class ReportCard extends StatelessWidget {
   final ReportModel report;
 
@@ -118,18 +121,28 @@ class ReportCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          Row(
-            children: [
-              Icon(Icons.thumb_up_alt_outlined,
-                  size: 22, color: Colors.grey.shade600),
-              const SizedBox(width: 4),
-              Text("${report.likes}"),
-              const SizedBox(width: 20),
-              Icon(Icons.comment_outlined,
-                  size: 22, color: Colors.grey.shade600),
-              const SizedBox(width: 4),
-              Text("${report.comments}"),
-            ],
+          GestureDetector(
+            onLongPress: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (_) => LikesModal(
+                  likes: [
+                    LikeUser(name: "María Gómez", photoUrl: "https://randomuser.me/api/portraits/women/44.jpg"),
+                    LikeUser(name: "Luis Pérez", photoUrl: "https://randomuser.me/api/portraits/men/12.jpg"),
+                    LikeUser(name: "Karla Díaz", photoUrl: "https://randomuser.me/api/portraits/women/8.jpg"),
+                  ],
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                Icon(Icons.thumb_up_alt_outlined, size: 22, color: Colors.grey.shade600),
+                const SizedBox(width: 4),
+                const Text("12"),
+              ],
+            ),
           )
         ],
       ),
