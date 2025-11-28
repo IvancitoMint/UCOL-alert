@@ -4,6 +4,7 @@ import 'reports/report_modal.dart';
 import 'reports/emergency_modal.dart';
 
 import 'sidebar/sidebar_page.dart';
+import 'utils/app_messages.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -35,6 +36,7 @@ class HomePage extends StatelessWidget {
         ),
       ),
 
+      
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -220,13 +222,18 @@ class HomePage extends StatelessWidget {
             ),
           ),
             GestureDetector(
-              onTap: () {
-                showModalBottomSheet(
+              onTap: () async {
+                final result = await showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => const ReportModal(),
+                  builder: (_) => const ReportModal(),
                 );
+
+                // --- Mostrar SnackBar si el reporte fue exitoso ---
+                if (result == "success") {
+                  AppMessages().showSuccess(context, "Reporte creado correctamente");
+                }
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -238,13 +245,17 @@ class HomePage extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                showModalBottomSheet(
+              onTap: () async{
+                final result = await showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => const EmergencyModal(),
+                  builder: (_) => const EmergencyModal(),
                 );
+                // --- Mostrar SnackBar si el reporte fue exitoso ---
+                if (result == "success") {
+                  AppMessages().showSuccess(context, "Reporte de emergencia enviado");
+                }
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,

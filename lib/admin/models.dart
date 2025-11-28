@@ -28,7 +28,6 @@ List<Reporte> reportesDemo = [
     tipo: "normal",
     detalles: "Hay bolsas acumuladas desde hace 3 días en la esquina.",
   ),
-
   Reporte(
     id: "2",
     categoria: "Fuga de agua",
@@ -38,15 +37,22 @@ List<Reporte> reportesDemo = [
     tipo: "urgente",
     detalles: "La fuga está esparciendo agua hacia toda la calle.",
   ),
-/*
   Reporte(
     id: "3",
-    categoria: "El felpudo",
-    descripcion: "Me quiero detonar al fercho",
-    usuario: "Kitian",
-    fecha: "2025-11-20",
-    tipo: "urgente",
-    detalles: "Tiene un culito bien paradito",
+    categoria: "Suciedad",
+    descripcion: "Ningun retrete en la baños funciona",
+    usuario: "Manolo Villalobos",
+    fecha: "2025-08-20",
+    tipo: "normal",
+    detalles: "Estan todos los retretes esta obstruidos",
   ),
-*/
+  Reporte(
+    id: "4",
+    categoria: "Daños inmoviliario",
+    descripcion: "Sillas rotas",
+    usuario: "Joaquin Quintero",
+    fecha: "2025-06-12",
+    tipo: "normal",
+    detalles: "Hay 3 sillas rotas en la aula 5 del edifico B",
+  ),
 ];

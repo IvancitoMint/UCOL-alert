@@ -1,8 +1,65 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'login_user_page.dart';
 
-class SignUpUserPage extends StatelessWidget {
+import '../utils/ask_permissions.dart';
+import '../utils/image_picker_helper.dart';
+import '../utils/app_messages.dart';
+
+class SignUpUserPage extends StatefulWidget {
   const SignUpUserPage({super.key});
+
+  @override
+  State<SignUpUserPage> createState() => _SignUpUserPageState();
+}
+
+class _SignUpUserPageState extends State<SignUpUserPage> {
+  // ---------- CONTROLLERS AND VARIABLES ---------- //
+  File? selectedImage;
+  final TextEditingController nombresController = TextEditingController();
+  final TextEditingController apellidosController = TextEditingController();
+  final TextEditingController correoController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  String? _selectedCampus;
+  final List<String> _campuses = [
+    "Colima Norte",
+    "Colima Central",
+    "Villa de Álvarez",
+    "Coquimatlán",
+    "Tecomán",
+    "Manzanillo",
+    "Armería"
+  ];
+
+  // ---------- SUBMIT FUNCTION ---------- //
+  void _submitSignUp() {
+    if (selectedImage == null ||
+        nombresController.text.isEmpty ||
+        apellidosController.text.isEmpty ||
+        correoController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        _selectedCampus == null) {
+      AppMessages().showError(context, "Por favor completa todos los campos requeridos.");
+      return;
+    }
+
+    // ----------- USER DATA READY ----------- //
+    final Map<String, dynamic> userData = {
+      "foto": selectedImage,
+      "nombres": nombresController.text.trim(),
+      "apellidos": apellidosController.text.trim(),
+      "correo": correoController.text.trim(),
+      "password": passwordController.text.trim(),
+      "campus": _selectedCampus,
+    };
+
+    print("Datos del usuario listos para enviar: $userData");
+
+    Navigator.pop(context, "success");
+
+    // Aquí luego podrás hacer tu POST al backend
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,21 +94,53 @@ class SignUpUserPage extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
 
             // ---------- PROFILE PHOTO ---------- //
             Center(
               child: Column(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.grey,
-                    child: Icon(Icons.person, size: 50, color: Colors.white),
+                    backgroundImage:
+                        selectedImage != null ? FileImage(selectedImage!) : null,
+                    child: selectedImage == null
+                        ? const Icon(Icons.person, size: 50, color: Colors.white)
+                        : null,
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    "Sube una foto de perfil",
-                    style: TextStyle(color: Colors.grey.shade600),
+                  ElevatedButton(
+                    onPressed: () async {
+                      bool permisosConcedidos = await askPermissions();
+
+                      if (!permisosConcedidos) {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text("Permisos requeridos"),
+                            content: const Text("Por favor otorga permisos para continuar."),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("OK"),
+                              ),
+                            ],
+                          ),
+                        );
+                        return;
+                      }
+
+                      ImagePickerHelper.showImageOptions(
+                        context: context,
+                        onImageSelected: (image) {
+                          setState(() {
+                            selectedImage = image;
+                          });
+                        },
+                      );
+                    },
+                    child: const Text("Subir foto"),
                   ),
                 ],
               ),
@@ -66,8 +155,9 @@ class SignUpUserPage extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             _inputBox(
-              child: const TextField(
-                decoration: InputDecoration(
+              child: TextField(
+                controller: nombresController,
+                decoration: const InputDecoration(
                   hintText: "Escribe tus nombres",
                   border: InputBorder.none,
                 ),
@@ -83,8 +173,9 @@ class SignUpUserPage extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             _inputBox(
-              child: const TextField(
-                decoration: InputDecoration(
+              child: TextField(
+                controller: apellidosController,
+                decoration: const InputDecoration(
                   hintText: "Escribe tus apellidos",
                   border: InputBorder.none,
                 ),
@@ -94,41 +185,35 @@ class SignUpUserPage extends StatelessWidget {
             const SizedBox(height: 12),
 
             // ---------- LOCATION ---------- //
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Ubicación *",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.black),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            isExpanded: true, // <--- IMPORTANTE
-                            hint: const Text("Selecciona tu campus"),
-                            items: ["Colima Norte", "Colima Central", "Villa de Álvarez", "Coquimatlán", "Tecomán", "Manzanillo", "Armería"]
-                                .map((e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Text(e),
-                                    ))
-                                .toList(),
-                            onChanged: (value) {},
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+            const Text(
+              "Campus de residencia *",
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.black),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedCampus,
+                  isExpanded: true,
+                  hint: const Text("Selecciona tu campus"),
+                  items: _campuses
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCampus = value;
+                    });
+                  },
                 ),
-              ],
+              ),
             ),
 
             const SizedBox(height: 12),
@@ -140,8 +225,9 @@ class SignUpUserPage extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             _inputBox(
-              child: const TextField(
-                decoration: InputDecoration(
+              child: TextField(
+                controller: correoController,
+                decoration: const InputDecoration(
                   hintText: "ejemplo@ucol.mx",
                   border: InputBorder.none,
                 ),
@@ -157,9 +243,10 @@ class SignUpUserPage extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             _inputBox(
-              child: const TextField(
+              child: TextField(
+                controller: passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: "Escribe tu contraseña",
                   border: InputBorder.none,
                 ),
@@ -173,14 +260,7 @@ class SignUpUserPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginUserPage(),
-                        ),
-                      );
-                    },
+                    onPressed: _submitSignUp,   // <<--- SE USA LA FUNCIÓN
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black87,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -197,7 +277,9 @@ class SignUpUserPage extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 const SizedBox(width: 14),
+
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
@@ -222,7 +304,7 @@ class SignUpUserPage extends StatelessWidget {
     );
   }
 
-  // ---------- WIDGET REUSABLE PARA INPUTS ---------- //
+  // ---------- INPUT BOX REUSABLE ----------
   Widget _inputBox({required Widget child}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

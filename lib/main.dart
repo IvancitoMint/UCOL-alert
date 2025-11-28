@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'login-signup/login_main_page.dart';
+import 'login_main_page.dart';
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   runApp(const MyApp());
@@ -11,6 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Login App',
       theme: ThemeData(

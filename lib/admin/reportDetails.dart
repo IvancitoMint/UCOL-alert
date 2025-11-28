@@ -14,41 +14,125 @@ class DetalleReportePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Categoría: ${reporte.categoria}",
-              style: const TextStyle(fontSize: 18),
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: "Categoria: ",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  TextSpan(
+                    text: reporte.categoria,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              "Descripción: ${reporte.descripcion}",
-              style: const TextStyle(fontSize: 16),
+            Divider(height: 30, thickness: 1, color: Colors.grey[300]),
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: "Descripción: ",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  TextSpan(
+                    text: reporte.descripcion,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              "Reportado por: ${reporte.usuario}",
-              style: const TextStyle(fontSize: 16),
+            Divider(height: 30, thickness: 1, color: Colors.grey[300]),
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: "Reportado por: ",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  TextSpan(
+                    text: reporte.usuario,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              "Fecha: ${reporte.fecha}",
-              style: const TextStyle(fontSize: 16),
+            Divider(height: 30, thickness: 1, color: Colors.grey[300]),
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: "Fecha: ",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  TextSpan(text: reporte.fecha, style: TextStyle(fontSize: 16)),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
-            const Text(
-              "Detalles:",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Divider(height: 30, thickness: 1, color: Colors.grey[300]),
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: "Detalles: ",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  TextSpan(
+                    text: reporte.detalles,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Text(reporte.detalles, style: const TextStyle(fontSize: 16)),
+            Divider(height: 30, thickness: 1, color: Colors.grey[300]),
+
+            Container(
+              height: 230,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.black),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Foto de evidencia de ejemplo w",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             const Spacer(),
 
+            // BUTTONS
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.check),
-                  label: const Text("Validar"),
+                  icon: const Icon(Icons.check, color: Colors.white),
+                  label: const Text(
+                    "Validar",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 3,
+                    backgroundColor: Colors.black87,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Reporte validado")),
@@ -56,9 +140,18 @@ class DetalleReportePage extends StatelessWidget {
                   },
                 ),
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.delete),
-                  label: const Text("Eliminar"),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.white),
+                  label: const Text(
+                    "Eliminar",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 3,
+                    backgroundColor: const Color.fromARGB(255, 220, 20, 60),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Reporte eliminado")),

@@ -2,15 +2,43 @@ import 'package:flutter/material.dart';
 
 import 'signup_user_page.dart';
 import '../home_page.dart';
+import '../utils/app_messages.dart';
 
-class LoginUserPage extends StatelessWidget {
+class LoginUserPage extends StatefulWidget {
   const LoginUserPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final accountController = TextEditingController();
-    final passwordController = TextEditingController();
+  State<LoginUserPage> createState() => _LoginUserPageState();
+}
 
+class _LoginUserPageState extends State<LoginUserPage> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  void _login() {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      AppMessages().showError(context, "Por favor completa todos los campos para iniciar sesión.");
+      return;
+    }else{
+      /// ----------- PRINT USER DATA ---------- //
+      final nuevosInicioDeSesion = {
+        "email": emailController.text,
+        "password": passwordController.text,
+      };
+      print("Inicio de sesion: $nuevosInicioDeSesion");
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -19,18 +47,20 @@ class LoginUserPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Bienvenido usuario', textAlign: TextAlign.center,
+              const Text('Bienvenido usuario',
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
+
               Text('Inicia sesión para continuar',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey.shade700)),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey.shade700)),
               const SizedBox(height: 40),
 
               TextField(
-                controller: accountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Número de cuenta'),
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(labelText: 'Correo electrónico'),
               ),
               const SizedBox(height: 20),
 
@@ -39,6 +69,7 @@ class LoginUserPage extends StatelessWidget {
                 obscureText: true,
                 decoration: const InputDecoration(labelText: 'Contraseña'),
               ),
+
               const SizedBox(height: 30),
 
               SizedBox(
@@ -47,42 +78,29 @@ class LoginUserPage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey.shade800,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                    //print('Cuenta: \${accountController.text}');
-                  },
+                  onPressed: _login,
                   child: const Text('Iniciar sesión',
-                    style: TextStyle(color: Colors.white, fontSize: 17)),
+                      style: TextStyle(color: Colors.white, fontSize: 17)),
                 ),
               ),
+
               const SizedBox(height: 25),
-/*
+
               GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SignUpUserPage(),
-                  ),
-                ),
-                child: Text('¿No tienes cuenta? Crear nueva cuenta',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey.shade900,
-                    decoration: TextDecoration.underline)),
-              ),
-              */
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
+                onTap: () async {
+                  final result = await showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     builder: (_) => const SignUpUserPage(),
                   );
+
+                  if (result == "success") {
+                    AppMessages().showSuccess(context, "Cuenta creada correctamente.");
+                  }
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
