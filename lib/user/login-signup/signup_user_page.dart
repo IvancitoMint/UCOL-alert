@@ -7,7 +7,7 @@ import '../utils/ask_permissions.dart';
 import '../utils/image_picker_helper.dart';
 import '../utils/app_messages.dart';
 import '../../main.dart';
-import '../../services/cloudinary_service.dart';
+import '../reports/report_modal.dart';
 
 class SignUpUserPage extends StatefulWidget {
   const SignUpUserPage({super.key});
@@ -47,16 +47,6 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
       return;
     }
 
-    // ----------- USER DATA READY ----------- //
-    final Map<String, dynamic> userData = {
-      "foto_perfil": selectedImage,
-      "nombre": nombresController.text.trim(),
-      "apellido": apellidosController.text.trim(),
-      "email": correoController.text.trim(),
-      "password": passwordController.text.trim(),
-      "ubicacion": _selectedCampus,
-    };
-
     if (!correoController.text.trim().endsWith("@ucol.mx")) {
       AppMessages().showSuccess(context, "El correo debe ser institucional (@ucol.mx)");
       return;
@@ -67,10 +57,23 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
       AppMessages().showError(context, "Este email ya está registrado.");
       return;
     }
+    final img = selectedImage;
+    if (img == null) return;
+    final imgUrl = await uploadImageToCloudinary(img);
+
+    // ----------- USER DATA READY ----------- //
+    final Map<String, dynamic> userData = {
+      "foto_perfil": imgUrl,
+      "nombre": nombresController.text.trim(),
+      "apellido": apellidosController.text.trim(),
+      "email": correoController.text.trim(),
+      "password": passwordController.text.trim(),
+      "ubicacion": _selectedCampus,
+    };
 
     final url = Uri.parse("${ip}users");
     final res = await http.post(url, body: jsonEncode(userData));
-    
+
     AppMessages().showSuccess(context, "La cuenta fue registrada satisfactoriamente.");
   }
 
