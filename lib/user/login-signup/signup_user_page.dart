@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../utils/ask_permissions.dart';
 import '../utils/image_picker_helper.dart';
 import '../utils/app_messages.dart';
+import '../../main.dart';
 
 class SignUpUserPage extends StatefulWidget {
   const SignUpUserPage({super.key});
@@ -32,7 +35,7 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
   ];
 
   // ---------- SUBMIT FUNCTION ---------- //
-  void _submitSignUp() {
+  void _submitSignUp() async {
     if (selectedImage == null ||
         nombresController.text.isEmpty ||
         apellidosController.text.isEmpty ||
@@ -45,20 +48,25 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
 
     // ----------- USER DATA READY ----------- //
     final Map<String, dynamic> userData = {
-      "foto": selectedImage,
-      "nombres": nombresController.text.trim(),
-      "apellidos": apellidosController.text.trim(),
-      "correo": correoController.text.trim(),
+      "foto_perfil": selectedImage,
+      "nombre": nombresController.text.trim(),
+      "apellido": apellidosController.text.trim(),
+      "email": correoController.text.trim(),
       "password": passwordController.text.trim(),
-      "campus": _selectedCampus,
+      "ubicacion": _selectedCampus,
     };
 
-    print("Datos del usuario listos para enviar: $userData");
+    final url = Uri.parse("${ip}users");
+    final res = await http.post(url, body: jsonEncode(userData));
 
-    Navigator.pop(context, "success");
-
-    // Aquí luego podrás hacer tu POST al backend
-
+    if (res.statusCode == 400) {
+      print("Error en el correo. Debe ser institucional (@ucol.mx).");
+      return;
+    } else if (res.statusCode == 409) {
+      print("Error. Este correo ya fue registrado anteriormente.");
+      return;
+    }
+    print("Todo salió bien. Cuenta creada.");
   }
 
   @override
