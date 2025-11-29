@@ -74,9 +74,10 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
-        title: const Text("Campus Report",
-            style: TextStyle(
-                color: Colors.black87, fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Campus Report",
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
         centerTitle: false,
         leading: Builder(
           builder: (context) => IconButton(
@@ -85,7 +86,6 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-
 
       // ---------- CONTENT FOR REPORTS ---------- //
       body: SingleChildScrollView(
@@ -123,7 +123,6 @@ class HomePage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-
             // ---------- BUTTONS ---------- //
             GestureDetector(
               onTap: () {},
@@ -143,12 +142,11 @@ class HomePage extends StatelessWidget {
                 final result = await showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
                   builder: (_) => const ReportModal(),
                 );
 
-                if (result == "success") {
-                  AppMessages().showSuccess(context, "Reporte creado correctamente");
+                if (result != null && result["status"] == "success") {
+                  AppMessages().showSuccess(context, result["mensaje"]);
                 }
               },
               child: Column(
@@ -162,19 +160,16 @@ class HomePage extends StatelessWidget {
             ),
 
             // ---------- EMERGENCY BUTTON ---------- //
-            
             GestureDetector(
               onTap: () async {
                 final result = await showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
                   builder: (_) => const EmergencyModal(),
                 );
 
-                if (result == "success") {
-                  AppMessages().showSuccess(
-                      context, "Reporte de emergencia enviado");
+                if (result != null && result["status"] == "success") {
+                  AppMessages().showSuccess(context, result["mensaje"]);
                 }
               },
               child: Column(
