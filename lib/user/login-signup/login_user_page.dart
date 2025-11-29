@@ -33,17 +33,18 @@ class _LoginUserPageState extends State<LoginUserPage> {
     };
 
     final url = Uri.parse("${ip}token");
-    final res = await http.post(url, body: jsonEncode(userData));
+    print(userData);
+    final res = await http.post(url, headers: {"Content-Type": "application/x-www-form-urlencoded"}, body: userData);
 
     if (res.statusCode == 401) {
       AppMessages().showError(context, "Las credenciales son incorrectas. Intentalo nuevamente.");
       return;
     }
-    AppMessages().showSuccess(context, "¡Bienvenido de nuevo!");
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const HomePage()),
     );
+    AppMessages().showSuccess(context, "¡Bienvenido de nuevo!");
   }
 
   @override

@@ -48,7 +48,7 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
     }
 
     if (!correoController.text.trim().endsWith("@ucol.mx")) {
-      AppMessages().showSuccess(context, "El correo debe ser institucional (@ucol.mx)");
+      AppMessages().showEmailRegistered(context, "El correo debe ser institucional (@ucol.mx)");
       return;
     }
 
@@ -68,11 +68,12 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
       "apellido": apellidosController.text.trim(),
       "email": correoController.text.trim(),
       "password": passwordController.text.trim(),
+      "rol": "user",
       "ubicacion": _selectedCampus,
     };
-
+    
     final url = Uri.parse("${ip}users");
-    final res = await http.post(url, body: jsonEncode(userData));
+    final res = await http.post(url, headers: {"Content-Type": "application/json"}, body: jsonEncode(userData));
 
     AppMessages().showSuccess(context, "La cuenta fue registrada satisfactoriamente.");
   }
