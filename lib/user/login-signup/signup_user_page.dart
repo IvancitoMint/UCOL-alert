@@ -60,13 +60,13 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
     final res = await http.post(url, body: jsonEncode(userData));
 
     if (res.statusCode == 400) {
-      print("Error en el correo. Debe ser institucional (@ucol.mx).");
+      AppMessages().showSuccess(context, "El correo debe ser institucional (@ucol.mx)");
       return;
     } else if (res.statusCode == 409) {
-      print("Error. Este correo ya fue registrado anteriormente.");
+      AppMessages().showError(context, "Este correo ya fue registrado anteriormente.");
       return;
     }
-    print("Todo salió bien. Cuenta creada.");
+    AppMessages().showSuccess(context, "La cuenta fue registrada satisfactoriamente.");
   }
 
   @override

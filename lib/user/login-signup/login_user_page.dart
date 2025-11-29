@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'signup_user_page.dart';
 import '../home_page.dart';
 import '../utils/app_messages.dart';
+import '../../main.dart';
 
 class LoginUserPage extends StatefulWidget {
   const LoginUserPage({super.key});
@@ -15,26 +18,32 @@ class _LoginUserPageState extends State<LoginUserPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void _login() {
+  void _login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       AppMessages().showError(context, "Por favor completa todos los campos para iniciar sesión.");
       return;
-    }else{
-      /// ----------- PRINT USER DATA ---------- //
-      final nuevosInicioDeSesion = {
-        "email": emailController.text,
-        "password": passwordController.text,
-      };
-      print("Inicio de sesion: $nuevosInicioDeSesion");
-      
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
     }
+    
+    final userData = {
+      "username": emailController.text,
+      "password": passwordController.text,
+    };
+
+    final url = Uri.parse("${ip}token");
+    final res = await http.post(url, body: jsonEncode(userData));
+
+    if (res.statusCode == 401) {
+      AppMessages().showError(context, "Las credenciales son incorrectas. Intentalo nuevamente.");
+      return;
+    }
+    AppMessages().showSuccess(context, "¡Bienvenido de nuevo!");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePage()),
+    );
   }
 
   @override
