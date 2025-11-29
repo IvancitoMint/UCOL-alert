@@ -7,6 +7,7 @@ import '../utils/ask_permissions.dart';
 import '../utils/image_picker_helper.dart';
 import '../utils/app_messages.dart';
 import '../../main.dart';
+import '../../services/cloudinary_service.dart';
 
 class SignUpUserPage extends StatefulWidget {
   const SignUpUserPage({super.key});
@@ -56,16 +57,20 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
       "ubicacion": _selectedCampus,
     };
 
-    final url = Uri.parse("${ip}users");
-    final res = await http.post(url, body: jsonEncode(userData));
-
-    if (res.statusCode == 400) {
+    if (!correoController.text.trim().endsWith("@ucol.mx")) {
       AppMessages().showSuccess(context, "El correo debe ser institucional (@ucol.mx)");
       return;
-    } else if (res.statusCode == 409) {
-      AppMessages().showError(context, "Este correo ya fue registrado anteriormente.");
+    }
+
+    final emailExists = await http.get(Uri.parse("${ip}verify_email?email=${correoController.text.trim()}"));
+    if (int.parse(emailExists.body) > 0) {
+      AppMessages().showError(context, "Este email ya está registrado.");
       return;
     }
+
+    final url = Uri.parse("${ip}users");
+    final res = await http.post(url, body: jsonEncode(userData));
+    
     AppMessages().showSuccess(context, "La cuenta fue registrada satisfactoriamente.");
   }
 
