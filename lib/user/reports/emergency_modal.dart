@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
-import '../../admin/api_service.dart';
+import '../../../api_service.dart';
 
 class EmergencyModal extends StatefulWidget {
   const EmergencyModal({super.key});

@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
-import '../../admin/api_service.dart'; // ★ IMPORTANTE: tu servicio de API
+import '../../../api_service.dart'; // ★ IMPORTANTE: tu servicio de API
 
 class ReportModal extends StatefulWidget {
   const ReportModal({super.key});
