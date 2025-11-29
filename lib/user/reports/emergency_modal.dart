@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
+import '../../../api_service.dart';
 
 class EmergencyModal extends StatefulWidget {
   const EmergencyModal({super.key});
@@ -26,7 +26,9 @@ class _EmergencyModalState extends State<EmergencyModal> {
 
     if (!permisos) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Por favor otorga permisos para continuar")),
+        const SnackBar(
+          content: Text("Por favor otorga permisos para continuar"),
+        ),
       );
       return;
     }
@@ -49,8 +51,9 @@ class _EmergencyModalState extends State<EmergencyModal> {
               title: const Text("Elegir de galería"),
               onTap: () async {
                 Navigator.pop(context);
-                final img =
-                    await ImagePicker().pickImage(source: ImageSource.gallery);
+                final img = await ImagePicker().pickImage(
+                  source: ImageSource.gallery,
+                );
                 if (img != null) {
                   setState(() => _photos.add(File(img.path)));
                 }
@@ -61,8 +64,9 @@ class _EmergencyModalState extends State<EmergencyModal> {
               title: const Text("Tomar foto"),
               onTap: () async {
                 Navigator.pop(context);
-                final img =
-                    await ImagePicker().pickImage(source: ImageSource.camera);
+                final img = await ImagePicker().pickImage(
+                  source: ImageSource.camera,
+                );
                 if (img != null) {
                   setState(() => _photos.add(File(img.path)));
                 }
@@ -75,23 +79,57 @@ class _EmergencyModalState extends State<EmergencyModal> {
   }
 
   // ---------- SUBMIT REPORT ---------- //
-  void _submitEmergencyReport() {
+  Future<void> _submitEmergencyReport() async {
     if (_descController.text.isEmpty ||
         _selectedEmergencyLocation == null ||
         _photos.isEmpty) {
-          AppMessages().showError(context, "Por favor completa todos los campos obligatorios.");
+      AppMessages().showError(
+        context,
+        "Por favor completa todos los campos obligatorios.",
+      );
       return;
     }
 
-    // Datos listos para enviar
-    final emergencyData = {
+    // ★ IMPORTANTE: Autor simulado (reemplazar luego con SharedPreferences)
+    final String autorSimulado = "usuario_demo_123";
+
+    // ★ Convertir fotos reales a URLs simuladas
+    final List<String> fotosSimuladas = _photos
+        .map((file) => "https://miapi.com/uploads/${file.path.split('/').last}")
+        .toList();
+
+    // ★ OBJETO DEL REPORTE ESPECIAL DE EMERGENCIA
+    final Map<String, dynamic> data = {
+      "autor": autorSimulado,
+      "estatus": "Pendiente",
       "descripcion": _descController.text,
       "ubicacion": _selectedEmergencyLocation,
-      "fotos": _photos,
+      "categoria": "emergencia", // ★ CAMBIO IMPORTANTE
+      "foto": fotosSimuladas,
+      "likes": [],
+      "comentarios": [],
+      "emergencia": true, // ★ CAMBIO IMPORTANTE
+      "fecha": {
+        "creacion": DateTime.now().toIso8601String(),
+        "actualizacion": DateTime.now().toIso8601String(),
+      },
     };
-    print("Datos del reporte de emergencia: $emergencyData");
 
-    Navigator.pop(context, "success"); // REGRESA DATOS A LA PÁGINA PADRE
+    try {
+      final response = await ApiService.post("/reportes", data);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // ★ NO mostramos el mensaje aquí
+        Navigator.pop(context, {
+          "status": "success",
+          "mensaje": "Emergencia reportada correctamente",
+        });
+      } else {
+        AppMessages().showError(context, "Error al enviar emergencia");
+      }
+    } catch (e) {
+      AppMessages().showError(context, "Error: $e");
+    }
   }
 
   @override
@@ -103,8 +141,9 @@ class _EmergencyModalState extends State<EmergencyModal> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -140,7 +179,10 @@ class _EmergencyModalState extends State<EmergencyModal> {
               child: const Text(
                 "Importante: Usa este formulario solo para emergencias reales que "
                 "requieran atención inmediata, como fugas, accidentes o riesgos de seguridad.",
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
 
@@ -189,8 +231,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
                   isExpanded: true,
                   hint: const Text("Seleccionar"),
                   items: _emLocations
-                      .map((e) =>
-                          DropdownMenuItem(value: e, child: Text(e)))
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
                   onChanged: (val) =>
                       setState(() => _selectedEmergencyLocation = val),
@@ -219,8 +260,11 @@ class _EmergencyModalState extends State<EmergencyModal> {
                 child: _photos.isEmpty
                     ? Column(
                         children: [
-                          Icon(Icons.upload,
-                              size: 32, color: Colors.grey.shade600),
+                          Icon(
+                            Icons.upload,
+                            size: 32,
+                            color: Colors.grey.shade600,
+                          ),
                           const SizedBox(height: 6),
                           Text(
                             "Haz clic para cargar una foto",
@@ -233,8 +277,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: _photos.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 8),
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
                           itemBuilder: (_, index) {
                             return Stack(
                               children: [
@@ -294,7 +337,9 @@ class _EmergencyModalState extends State<EmergencyModal> {
                     child: const Text(
                       "Reportar Emergencia",
                       style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'models.dart';
+import '../models.dart';
 import '../main.dart';
 
 class ApiService {
@@ -15,5 +15,17 @@ class ApiService {
     } else {
       throw Exception("Error al obtener reportes");
     }
+  }
+
+  static Future<http.Response> post(
+    String path,
+    Map<String, dynamic> data,
+  ) async {
+    final url = Uri.parse("${ip}reportes");
+    return http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(data),
+    );
   }
 }

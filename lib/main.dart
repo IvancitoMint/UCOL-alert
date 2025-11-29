@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'login_main_page.dart';
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 // Variable global para la IP
-final String ip = "http://192.168.100.10:8000/";
+final String ip = "http://192.168.100.16:8000/";
 
 void main() {
   runApp(const MyApp());
@@ -22,12 +23,10 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFEEEEEE),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
       ),
-      
+
       // ---------- LOGIN PAGE AS HOME SCREEN ---------- //
       home: const LoginMainPage(),
-      routes: {
-        '/login': (context) => const LoginMainPage(),
-      },
+      routes: {'/login': (context) => const LoginMainPage()},
     );
   }
 }

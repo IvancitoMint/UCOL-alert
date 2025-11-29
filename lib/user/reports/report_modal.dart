@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:http/http.dart' as http;
 import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
+import '../../../api_service.dart'; // ★ IMPORTANTE: tu servicio de API
 
 class ReportModal extends StatefulWidget {
   const ReportModal({super.key});
@@ -15,22 +17,26 @@ class ReportModal extends StatefulWidget {
 class _ReportModalState extends State<ReportModal> {
   // ---------- VARIABLES ---------- //
   final List<File> _selectedImages = [];
-
   final TextEditingController _descriptionController = TextEditingController();
 
   String? _selectedLocation;
   String? _selectedCategory;
 
   final List<String> _locations = [
-    "Edificio A", "Edificio B", "Edificio C", "Edificio D", "Estacionamiento",
-    ];
+    "Edificio A",
+    "Edificio B",
+    "Edificio C",
+    "Edificio D",
+    "Estacionamiento",
+  ];
+
   final List<String> _categories = [
     "Mantenimiento",
     "Limpieza",
     "Seguridad",
     "Infraestructura",
     "Tecnología",
-    "Otro"
+    "Otro",
   ];
 
   @override
@@ -41,12 +47,13 @@ class _ReportModalState extends State<ReportModal> {
 
   // ---------- PICK IMAGE ---------- //
   Future<void> _pickImage() async {
+    // Aquí llamas tu función de permisos
     bool permisos = await askPermissions();
     if (!permisos) {
       showDialog(
         context: context,
         builder: (_) => const AlertDialog(
-          title: Text("Permisos requeridos",style: TextStyle(fontWeight: FontWeight.bold),),
+          title: Text("Permisos requeridos"),
           content: Text("Por favor otorga permisos para continuar."),
         ),
       );
@@ -57,7 +64,7 @@ class _ReportModalState extends State<ReportModal> {
       showDialog(
         context: context,
         builder: (_) => const AlertDialog(
-          title: Text("Límite alcanzado",style: TextStyle(fontWeight: FontWeight.bold),),
+          title: Text("Límite alcanzado"),
           content: Text("Solo puedes subir hasta 3 imágenes."),
         ),
       );
@@ -76,8 +83,9 @@ class _ReportModalState extends State<ReportModal> {
                 title: const Text("Elegir de galería"),
                 onTap: () async {
                   Navigator.pop(context);
-                  final image =
-                      await ImagePicker().pickImage(source: ImageSource.gallery);
+                  final image = await ImagePicker().pickImage(
+                    source: ImageSource.gallery,
+                  );
                   if (image != null) {
                     setState(() => _selectedImages.add(File(image.path)));
                   }
@@ -88,8 +96,9 @@ class _ReportModalState extends State<ReportModal> {
                 title: const Text("Tomar foto"),
                 onTap: () async {
                   Navigator.pop(context);
-                  final image =
-                      await ImagePicker().pickImage(source: ImageSource.camera);
+                  final image = await ImagePicker().pickImage(
+                    source: ImageSource.camera,
+                  );
                   if (image != null) {
                     setState(() => _selectedImages.add(File(image.path)));
                   }
@@ -103,30 +112,104 @@ class _ReportModalState extends State<ReportModal> {
   }
 
   // ---------- VALIDAR Y ENVIAR ---------- //
-  void _submitReport() {
+  Future<void> _submitReport() async {
     if (_descriptionController.text.isEmpty ||
         _selectedLocation == null ||
         _selectedCategory == null ||
         _selectedImages.isEmpty) {
-          AppMessages().showError(context, "Por favor completa todos los campos obligatorios.");
-      return; 
+      AppMessages().showError(
+        context,
+        "Por favor completa todos los campos obligatorios.",
+      );
+      return;
     }
-  /// ----------- PRINT USER DATA ---------- //
-    final nuevoReporte = {
+
+    // ★ Autor simulado
+    final String autorSimulado = "usuario_demo_123";
+
+    // ★ Subimos todas las imágenes a Cloudinary y obtenemos sus URLs
+    List<String> uploadedImageUrls = [];
+    try {
+      for (var imageFile in _selectedImages) {
+        final url = await _uploadImageToCloudinary(imageFile);
+        uploadedImageUrls.add(url);
+      }
+    } catch (e) {
+      AppMessages().showError(context, "Error subiendo imágenes: $e");
+      return;
+    }
+
+    // ★ Convertimos las imágenes a links simulados
+    //final List<String> fotosSimuladas = _selectedImages
+      //  .map((file) => "https://miapi.com/uploads/${file.path.split('/').last}")
+        //.toList();
+
+    // ★ Armamos el objeto según tu backend
+    final Map<String, dynamic> data = {
+      "autor": autorSimulado,
+      "estatus": "No revisado",
       "descripcion": _descriptionController.text,
       "ubicacion": _selectedLocation,
       "categoria": _selectedCategory,
-      "imagenes": _selectedImages,
+      "foto": uploadedImageUrls,
+      "likes": [],
+      "comentarios": [],
+      "emergencia": false,
+      "fecha": {
+        "creacion": DateTime.now().toIso8601String(),
+        "actualizacion": DateTime.now().toIso8601String(),
+      },
     };
 
-    print("Datos del reporte: $nuevoReporte");
+    try {
+      final response = await ApiService.post("/reportes", data);
 
-    Navigator.pop(context, "success");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // ★ IMPORTANTE: NO mostrar aquí AppMessages()
+        Navigator.pop(context, {
+          "status": "success",
+          "mensaje": "Reporte creado correctamente",
+        });
+      } else {
+        AppMessages().showError(context, "Error al crear el reporte");
+      }
+    } catch (e) {
+      AppMessages().showError(context, "Error: $e");
+    }
+  }
+  // ---------- FUNCIÓN PRIVADA DE SUBIDA A CLOUDINARY ----------
+  Future<String> _uploadImageToCloudinary(File image) async {
+    final uri = Uri.parse('https://api.cloudinary.com/v1_1/dilwitdws/image/upload');
+    final request = http.MultipartRequest('POST', uri);
 
-  // ---------- AQUÍ IRÍA LA LÓGICA DE ENVÍO DEL REPORTE ---------- //
-}
+    request.fields['upload_preset'] = 'flutter_unsigned';
+    request.files.add(await http.MultipartFile.fromPath('file', image.path));
 
-  // ---------- UI ---------- //
+    final response = await request.send();
+    final resBody = await response.stream.bytesToString();
+    final data = jsonDecode(resBody);
+
+    return data['secure_url'];} // URL de la imagen subida
+  /*
+  try {
+      // ★ APARTADO QUE ENVÍA EL REPORTE A TU API
+      final response = await ApiService.post("/reportes", data);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        AppMessages().showSuccess(context, "Reporte creado correctamente");
+        Navigator.pop(context, {
+          "status": "success",
+          "mensaje": "Reporte creado correctamente",
+        });
+      } else {
+        AppMessages().showError(context, "Error al crear el reporte");
+      }
+    } catch (e) {
+      AppMessages().showError(context, "Error: $e");
+    }
+   */
+
+  // ---------- UI (NO LO MODIFIQUÉ) ---------- //
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -142,7 +225,7 @@ class _ReportModalState extends State<ReportModal> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ---------- HEADER ---------- //
+            // HEADER
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -165,14 +248,19 @@ class _ReportModalState extends State<ReportModal> {
 
             const SizedBox(height: 20),
 
-            // ---------- DESCRIPCIÓN ---------- //
-            const Text("Descripción *", style: TextStyle(fontWeight: FontWeight.w600)),
+            // DESCRIPCIÓN
+            const Text(
+              "Descripción *",
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.black),
+                border: Border.all(
+                  color: const Color.fromARGB(255, 145, 51, 51),
+                ),
               ),
               child: TextField(
                 controller: _descriptionController,
@@ -186,15 +274,17 @@ class _ReportModalState extends State<ReportModal> {
 
             const SizedBox(height: 20),
 
-            // ---------- LOCATION & CATEGORY ---------- //
+            // LOCACIÓN + CATEGORÍA
             Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Ubicación *",
-                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const Text(
+                        "Ubicación *",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(height: 6),
                       _dropdown(
                         value: _selectedLocation,
@@ -209,8 +299,10 @@ class _ReportModalState extends State<ReportModal> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Categoría *",
-                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const Text(
+                        "Categoría *",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(height: 6),
                       _dropdown(
                         value: _selectedCategory,
@@ -225,11 +317,12 @@ class _ReportModalState extends State<ReportModal> {
 
             const SizedBox(height: 20),
 
-            // ---------- IMÁGENES ---------- //
-            const Text("Fotos de evidencia (máx. 3) *",
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            // FOTOS
+            const Text(
+              "Fotos de evidencia (máx. 3) *",
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 10),
-
             GestureDetector(
               onTap: _pickImage,
               child: Container(
@@ -243,10 +336,16 @@ class _ReportModalState extends State<ReportModal> {
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.upload, size: 32, color: Colors.grey.shade500),
+                          Icon(
+                            Icons.upload,
+                            size: 32,
+                            color: Colors.grey.shade500,
+                          ),
                           const SizedBox(height: 5),
-                          Text("Haz clic para cargar una foto",
-                              style: TextStyle(color: Colors.grey.shade600)),
+                          Text(
+                            "Haz clic para cargar una foto",
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
                         ],
                       )
                     : SizedBox(
@@ -254,7 +353,8 @@ class _ReportModalState extends State<ReportModal> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: _selectedImages.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 10),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 10),
                           itemBuilder: (_, i) {
                             return Stack(
                               children: [
@@ -272,7 +372,9 @@ class _ReportModalState extends State<ReportModal> {
                                   right: 4,
                                   child: GestureDetector(
                                     onTap: () {
-                                      setState(() => _selectedImages.removeAt(i));
+                                      setState(
+                                        () => _selectedImages.removeAt(i),
+                                      );
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.all(4),
@@ -280,8 +382,11 @@ class _ReportModalState extends State<ReportModal> {
                                         color: Colors.black54,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: const Icon(Icons.close,
-                                          color: Colors.white, size: 18),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -295,12 +400,12 @@ class _ReportModalState extends State<ReportModal> {
 
             const SizedBox(height: 20),
 
-            // ---------- BUTTONS ---------- //
+            // BUTTONS
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _submitReport,
+                    onPressed: _submitReport, // ★ ENVÍA REPORTE
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black87,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -308,8 +413,10 @@ class _ReportModalState extends State<ReportModal> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text("Publicar Reporte",
-                        style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      "Publicar Reporte",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -323,8 +430,10 @@ class _ReportModalState extends State<ReportModal> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child:
-                        const Text("Cancelar", style: TextStyle(color: Colors.black)),
+                    child: const Text(
+                      "Cancelar",
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                 ),
               ],
