@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'models.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../main.dart';
 
 import '../user/utils/app_messages.dart';
 
@@ -9,10 +10,8 @@ class DetalleReportePage extends StatelessWidget {
   final Reporte reporte;
   const DetalleReportePage({super.key, required this.reporte});
 
-  final String baseUrl = "http://192.168.100.25:8000"; // CAMBIA ESTA IP
-
   Future<void> validarReporte(BuildContext context) async {
-    final url = Uri.parse("$baseUrl/reportes/${reporte.id}");
+    final url = Uri.parse("${ip}reportes/${reporte.id}");
 
     final reporteJson = reporte.toJson();
 
@@ -49,7 +48,7 @@ class DetalleReportePage extends StatelessWidget {
   }
 
   Future<void> eliminarReporte(BuildContext context) async {
-    final url = Uri.parse("$baseUrl/reportes/${reporte.id}");
+    final url = Uri.parse("${ip}reportes/${reporte.id}");
 
     final res = await http.delete(url);
 

@@ -5,7 +5,7 @@ class Reporte {
   final String descripcion;
   final String ubicacion;
   final String categoria;
-  final String foto;
+  final List foto;
   final List likes;
   final List comentarios;
   final bool emergencia;
@@ -33,7 +33,7 @@ class Reporte {
       descripcion: json['descripcion'],
       ubicacion: json['ubicacion'],
       categoria: json['categoria'],
-      foto: json['foto'],
+      foto: json['foto'] ?? [],
       likes: json['likes'] ?? [],
       comentarios: json['comentarios'] ?? [],
       emergencia: json['emergencia'],

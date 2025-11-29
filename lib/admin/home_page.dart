@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'models.dart'; // Modelo Reporte + Fecha
 import 'report_details.dart'; // Pantalla de detalles
+import '../main.dart';
 
 class AdminMain extends StatefulWidget {
   const AdminMain({super.key});
@@ -16,7 +17,7 @@ class _AdminMainState extends State<AdminMain> {
   late Future<List<Reporte>> futureReportes;
 
   // URL de FastAPI
-  final String apiUrl = "http://192.168.100.25:8000/reportes";
+  final String apiUrl = "${ip}reportes";
 
   @override
   void initState() {
