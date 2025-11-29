@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+
 import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
 import '../../../api_service.dart'; // ★ IMPORTANTE: tu servicio de API
@@ -38,10 +39,27 @@ class _ReportModalState extends State<ReportModal> {
   String? _selectedCategory;
 
   final List<String> _locations = [
+    "Direccion",
+    "Auditorio",
+    "Cubiculos PTC",
     "Edificio A",
     "Edificio B",
     "Edificio C",
     "Edificio D",
+    "Edificio de Postgrado",
+    "Laboratorio de Electromagnetismo",
+    "Taller de Maquinas-Herramientas",
+    "Laboratorio de Electroinica",
+    "Laboratorio de Telefonia",
+    "Laboratorio de Inteligencia Artificial",
+    "Laboratorio de Mecanica",
+    "P.B. Centro de Cómputo",
+    "P.B. Cubiculos PTC",
+    "Laboratorio de Microelectronica",
+    "Laboratorio de Matematicas",
+    "Centro de Cómputo",
+    "Laboratorio de Ciencia de datos",
+    "Laboratorio de Mecatronica",
     "Estacionamiento",
   ];
 
@@ -154,11 +172,6 @@ class _ReportModalState extends State<ReportModal> {
       return;
     }
 
-    // ★ Convertimos las imágenes a links simulados
-    //final List<String> fotosSimuladas = _selectedImages
-      //  .map((file) => "https://miapi.com/uploads/${file.path.split('/').last}")
-        //.toList();
-
     // ★ Armamos el objeto según tu backend
     final Map<String, dynamic> data = {
       "autor": autorSimulado,
@@ -211,7 +224,7 @@ class _ReportModalState extends State<ReportModal> {
     }
    */
 
-  // ---------- UI (NO LO MODIFIQUÉ) ---------- //
+  // ---------- UI ---------- //
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -227,7 +240,7 @@ class _ReportModalState extends State<ReportModal> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER
+            // ---------- HEADER ---------- //
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -237,7 +250,7 @@ class _ReportModalState extends State<ReportModal> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context, "success"), // Close modal
                 ),
               ],
             ),
@@ -261,7 +274,7 @@ class _ReportModalState extends State<ReportModal> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color.fromARGB(255, 145, 51, 51),
+                  color: const Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
               child: TextField(

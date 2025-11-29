@@ -114,7 +114,7 @@ class AppMessages {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.sms_failed, color: Colors.green, size: 48),
+              const Icon(Icons.sms_failed, color: Colors.red, size: 48),
               const SizedBox(height: 10),
               Text(
                 message,
@@ -162,7 +162,7 @@ class AppMessages {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.check_circle_outline, color: Colors.green, size: 48),
+              const Icon(Icons.email_outlined, color: Colors.yellow, size: 48),
               const SizedBox(height: 10),
               Text(
                 message,
@@ -178,7 +178,7 @@ class AppMessages {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.yellow,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
