@@ -57,7 +57,7 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
 
     Navigator.pop(context, "success");
 
-    // Aquí luego podrás hacer tu POST al backend
+    // POST al backend
 
   }
 

@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+
 import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
 import '../../../api_service.dart';
@@ -13,76 +16,113 @@ class EmergencyModal extends StatefulWidget {
 }
 
 class _EmergencyModalState extends State<EmergencyModal> {
-  final List<File> _photos = [];
-
   // ---------- VARIABLES ---------- //
-  final TextEditingController _descController = TextEditingController();
-  String? _selectedEmergencyLocation;
-  final List<String> _emLocations = ["Edificio A", "Edificio B", "Norte"];
+   final List<File> _selectedImages = [];
+  final TextEditingController _descriptionController = TextEditingController();
+
+  String? _selectedLocation;
+  final List<String> _locations = [
+    "Direccion",
+    "Auditorio",
+    "Cubiculos PTC",
+    "Edificio A",
+    "Edificio B",
+    "Edificio C",
+    "Edificio D",
+    "Edificio de Postgrado",
+    "Laboratorio de Electromagnetismo",
+    "Taller de Maquinas-Herramientas",
+    "Laboratorio de Electroinica",
+    "Laboratorio de Telefonia",
+    "Laboratorio de Inteligencia Artificial",
+    "Laboratorio de Mecanica",
+    "P.B. Centro de Cómputo",
+    "P.B. Cubiculos PTC",
+    "Laboratorio de Microelectronica",
+    "Laboratorio de Matematicas",
+    "Centro de Cómputo",
+    "Laboratorio de Ciencia de datos",
+    "Laboratorio de Mecatronica",
+    "Estacionamiento",
+  ];
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   // ---------- PICK IMAGE ---------- //
   Future<void> _pickImage() async {
+    // Aquí llamas tu función de permisos
     bool permisos = await askPermissions();
-
     if (!permisos) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Por favor otorga permisos para continuar"),
+      showDialog(
+        context: context,
+        builder: (_) => const AlertDialog(
+          title: Text("Permisos requeridos"),
+          content: Text("Por favor otorga permisos para continuar."),
         ),
       );
       return;
     }
 
-    if (_photos.length >= 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Máximo 3 fotos permitidas")),
+    if (_selectedImages.length >= 3) {
+      showDialog(
+        context: context,
+        builder: (_) => const AlertDialog(
+          title: Text("Límite alcanzado"),
+          content: Text("Solo puedes subir hasta 3 imágenes."),
+        ),
       );
       return;
     }
 
     showModalBottomSheet(
       context: context,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text("Elegir de galería"),
-              onTap: () async {
-                Navigator.pop(context);
-                final img = await ImagePicker().pickImage(
-                  source: ImageSource.gallery,
-                );
-                if (img != null) {
-                  setState(() => _photos.add(File(img.path)));
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text("Tomar foto"),
-              onTap: () async {
-                Navigator.pop(context);
-                final img = await ImagePicker().pickImage(
-                  source: ImageSource.camera,
-                );
-                if (img != null) {
-                  setState(() => _photos.add(File(img.path)));
-                }
-              },
-            ),
-          ],
-        ),
-      ),
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text("Elegir de galería"),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final image = await ImagePicker().pickImage(
+                    source: ImageSource.gallery,
+                  );
+                  if (image != null) {
+                    setState(() => _selectedImages.add(File(image.path)));
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text("Tomar foto"),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final image = await ImagePicker().pickImage(
+                    source: ImageSource.camera,
+                  );
+                  if (image != null) {
+                    setState(() => _selectedImages.add(File(image.path)));
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
   // ---------- SUBMIT REPORT ---------- //
   Future<void> _submitEmergencyReport() async {
-    if (_descController.text.isEmpty ||
-        _selectedEmergencyLocation == null ||
-        _photos.isEmpty) {
+    if (_descriptionController.text.isEmpty ||
+        _selectedLocation == null ||
+        _selectedImages.isEmpty) {
       AppMessages().showError(
         context,
         "Por favor completa todos los campos obligatorios.",
@@ -93,22 +133,29 @@ class _EmergencyModalState extends State<EmergencyModal> {
     // ★ IMPORTANTE: Autor simulado (reemplazar luego con SharedPreferences)
     final String autorSimulado = "usuario_demo_123";
 
-    // ★ Convertir fotos reales a URLs simuladas
-    final List<String> fotosSimuladas = _photos
-        .map((file) => "https://miapi.com/uploads/${file.path.split('/').last}")
-        .toList();
+    // ★ Subimos todas las imágenes a Cloudinary y obtenemos sus URLs
+    List<String> uploadedImageUrls = [];
+    try {
+      for (var imageFile in _selectedImages) {
+        final url = await _uploadImageToCloudinary(imageFile);
+        uploadedImageUrls.add(url);
+      }
+    } catch (e) {
+      AppMessages().showError(context, "Error subiendo imágenes: $e");
+      return;
+    }
 
-    // ★ OBJETO DEL REPORTE ESPECIAL DE EMERGENCIA
+    // ★ Armamos el objeto según tu backend
     final Map<String, dynamic> data = {
       "autor": autorSimulado,
-      "estatus": "Pendiente",
-      "descripcion": _descController.text,
-      "ubicacion": _selectedEmergencyLocation,
-      "categoria": "emergencia", // ★ CAMBIO IMPORTANTE
-      "foto": fotosSimuladas,
+      "estatus": "No revisado",
+      "descripcion": _descriptionController.text,
+      "ubicacion": _selectedLocation,
+      "categoria": "Emergencia",
+      "foto": uploadedImageUrls,
       "likes": [],
       "comentarios": [],
-      "emergencia": true, // ★ CAMBIO IMPORTANTE
+      "emergencia": true,
       "fecha": {
         "creacion": DateTime.now().toIso8601String(),
         "actualizacion": DateTime.now().toIso8601String(),
@@ -119,19 +166,34 @@ class _EmergencyModalState extends State<EmergencyModal> {
       final response = await ApiService.post("/reportes", data);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // ★ NO mostramos el mensaje aquí
+        // ★ IMPORTANTE: NO mostrar aquí AppMessages()
         Navigator.pop(context, {
           "status": "success",
-          "mensaje": "Emergencia reportada correctamente",
+          "mensaje": "Reporte creado correctamente",
         });
       } else {
-        AppMessages().showError(context, "Error al enviar emergencia");
+        AppMessages().showError(context, "Error al crear el reporte");
       }
     } catch (e) {
       AppMessages().showError(context, "Error: $e");
     }
   }
 
+  // ---------- FUNCIÓN PRIVADA DE SUBIDA A CLOUDINARY ----------
+  Future<String> _uploadImageToCloudinary(File image) async {
+    final uri = Uri.parse('https://api.cloudinary.com/v1_1/dilwitdws/image/upload');
+    final request = http.MultipartRequest('POST', uri);
+
+    request.fields['upload_preset'] = 'flutter_unsigned';
+    request.files.add(await http.MultipartFile.fromPath('file', image.path));
+
+    final response = await request.send();
+    final resBody = await response.stream.bytesToString();
+    final data = jsonDecode(resBody);
+
+    return data['secure_url'];} // URL de la imagen subida
+
+  // ---------- UI ---------- //
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -147,7 +209,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ---------- TOP APP BAR ---------- //
+            // ---------- HEADER ---------- //
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -161,14 +223,14 @@ class _EmergencyModalState extends State<EmergencyModal> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context, "success"), // Close modal
                 ),
               ],
             ),
 
             const SizedBox(height: 14),
 
-            // ---------- IMPORTANT WARNING BOX ---------- //
+            // ---------- WARNING BOX ---------- //
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -199,10 +261,10 @@ class _EmergencyModalState extends State<EmergencyModal> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.black),
+                border: Border.all(color: const Color.fromARGB(255, 0, 0, 0)),
               ),
               child: TextField(
-                controller: _descController,
+                controller: _descriptionController,
                 maxLines: 4,
                 decoration: const InputDecoration(
                   hintText: "Describe la emergencia...",
@@ -227,14 +289,14 @@ class _EmergencyModalState extends State<EmergencyModal> {
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: _selectedEmergencyLocation,
+                  value: _selectedLocation,
                   isExpanded: true,
                   hint: const Text("Seleccionar"),
-                  items: _emLocations
+                  items: _locations
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
                   onChanged: (val) =>
-                      setState(() => _selectedEmergencyLocation = val),
+                      setState(() => _selectedLocation = val),
                 ),
               ),
             ),
@@ -257,7 +319,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.black),
                 ),
-                child: _photos.isEmpty
+                child: _selectedImages.isEmpty
                     ? Column(
                         children: [
                           Icon(
@@ -276,7 +338,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
                         height: 120,
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
-                          itemCount: _photos.length,
+                          itemCount: _selectedImages.length,
                           separatorBuilder: (_, __) => const SizedBox(width: 8),
                           itemBuilder: (_, index) {
                             return Stack(
@@ -284,7 +346,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.file(
-                                    _photos[index],
+                                    _selectedImages[index],
                                     height: 120,
                                     width: 120,
                                     fit: BoxFit.cover,
@@ -295,7 +357,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
                                   right: 4,
                                   child: GestureDetector(
                                     onTap: () {
-                                      setState(() => _photos.removeAt(index));
+                                      setState(() => _selectedImages.removeAt(index));
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.all(4),
