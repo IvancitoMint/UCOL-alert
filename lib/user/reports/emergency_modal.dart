@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import '../../reportes_provider.dart';
+import 'package:provider/provider.dart';
+import '../../models.dart';
 
 import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
@@ -17,7 +20,7 @@ class EmergencyModal extends StatefulWidget {
 
 class _EmergencyModalState extends State<EmergencyModal> {
   // ---------- VARIABLES ---------- //
-   final List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   final TextEditingController _descriptionController = TextEditingController();
 
   String? _selectedLocation;
@@ -130,10 +133,9 @@ class _EmergencyModalState extends State<EmergencyModal> {
       return;
     }
 
-    // ★ IMPORTANTE: Autor simulado (reemplazar luego con SharedPreferences)
     final String autorSimulado = "usuario_demo_123";
 
-    // ★ Subimos todas las imágenes a Cloudinary y obtenemos sus URLs
+    // ---------- SUBIR IMÁGENES ---------- //
     List<String> uploadedImageUrls = [];
     try {
       for (var imageFile in _selectedImages) {
@@ -145,13 +147,13 @@ class _EmergencyModalState extends State<EmergencyModal> {
       return;
     }
 
-    // ★ Armamos el objeto según tu backend
+    // ---------- CREAR JSON PARA API ---------- //
     final Map<String, dynamic> data = {
       "autor": autorSimulado,
       "estatus": "No revisado",
       "descripcion": _descriptionController.text,
       "ubicacion": _selectedLocation,
-      "categoria": "Emergencia",
+      "categoria": "emergencia", // <-- en minúsculas si así es tu backend
       "foto": uploadedImageUrls,
       "likes": [],
       "comentarios": [],
@@ -163,10 +165,20 @@ class _EmergencyModalState extends State<EmergencyModal> {
     };
 
     try {
+      // 1. Enviar a la API
       final response = await ApiService.post("/reportes", data);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // ★ IMPORTANTE: NO mostrar aquí AppMessages()
+        // 2. Convertir respuesta a modelo
+        final nuevoReporte = Reporte.fromJson(jsonDecode(response.body));
+
+        // 3. Agregar al Provider para actualización en tiempo real
+        Provider.of<ReportesProvider>(
+          context,
+          listen: false,
+        ).agregarReporte(nuevoReporte);
+
+        // 4. Salir del modal
         Navigator.pop(context, {
           "status": "success",
           "mensaje": "Reporte creado correctamente",
@@ -181,7 +193,9 @@ class _EmergencyModalState extends State<EmergencyModal> {
 
   // ---------- FUNCIÓN PRIVADA DE SUBIDA A CLOUDINARY ----------
   Future<String> _uploadImageToCloudinary(File image) async {
-    final uri = Uri.parse('https://api.cloudinary.com/v1_1/dilwitdws/image/upload');
+    final uri = Uri.parse(
+      'https://api.cloudinary.com/v1_1/dilwitdws/image/upload',
+    );
     final request = http.MultipartRequest('POST', uri);
 
     request.fields['upload_preset'] = 'flutter_unsigned';
@@ -191,7 +205,8 @@ class _EmergencyModalState extends State<EmergencyModal> {
     final resBody = await response.stream.bytesToString();
     final data = jsonDecode(resBody);
 
-    return data['secure_url'];} // URL de la imagen subida
+    return data['secure_url'];
+  } // URL de la imagen subida
 
   // ---------- UI ---------- //
   @override
@@ -223,7 +238,8 @@ class _EmergencyModalState extends State<EmergencyModal> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context, "success"), // Close modal
+                  onPressed: () =>
+                      Navigator.pop(context, "success"), // Close modal
                 ),
               ],
             ),
@@ -295,8 +311,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
                   items: _locations
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
-                  onChanged: (val) =>
-                      setState(() => _selectedLocation = val),
+                  onChanged: (val) => setState(() => _selectedLocation = val),
                 ),
               ),
             ),
@@ -357,7 +372,9 @@ class _EmergencyModalState extends State<EmergencyModal> {
                                   right: 4,
                                   child: GestureDetector(
                                     onTap: () {
-                                      setState(() => _selectedImages.removeAt(index));
+                                      setState(
+                                        () => _selectedImages.removeAt(index),
+                                      );
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.all(4),

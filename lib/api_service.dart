@@ -4,7 +4,7 @@ import '../models.dart';
 import '../main.dart';
 
 class ApiService {
-  Future<List<Reporte>> obtenerReportes() async {
+  static Future<List<Reporte>> obtenerReportes() async {
     final url = Uri.parse("${ip}reportes");
 
     final respuesta = await http.get(url);
