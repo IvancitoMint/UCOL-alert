@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
 import '../../admin/api_service.dart'; // ★ IMPORTANTE: tu servicio de API
@@ -125,10 +127,22 @@ class _ReportModalState extends State<ReportModal> {
     // ★ Autor simulado
     final String autorSimulado = "usuario_demo_123";
 
+    // ★ Subimos todas las imágenes a Cloudinary y obtenemos sus URLs
+    List<String> uploadedImageUrls = [];
+    try {
+      for (var imageFile in _selectedImages) {
+        final url = await _uploadImageToCloudinary(imageFile);
+        uploadedImageUrls.add(url);
+      }
+    } catch (e) {
+      AppMessages().showError(context, "Error subiendo imágenes: $e");
+      return;
+    }
+
     // ★ Convertimos las imágenes a links simulados
-    final List<String> fotosSimuladas = _selectedImages
-        .map((file) => "https://miapi.com/uploads/${file.path.split('/').last}")
-        .toList();
+    //final List<String> fotosSimuladas = _selectedImages
+      //  .map((file) => "https://miapi.com/uploads/${file.path.split('/').last}")
+        //.toList();
 
     // ★ Armamos el objeto según tu backend
     final Map<String, dynamic> data = {
@@ -137,7 +151,7 @@ class _ReportModalState extends State<ReportModal> {
       "descripcion": _descriptionController.text,
       "ubicacion": _selectedLocation,
       "categoria": _selectedCategory,
-      "foto": fotosSimuladas,
+      "foto": uploadedImageUrls,
       "likes": [],
       "comentarios": [],
       "emergencia": false,
@@ -163,7 +177,19 @@ class _ReportModalState extends State<ReportModal> {
       AppMessages().showError(context, "Error: $e");
     }
   }
+  // ---------- FUNCIÓN PRIVADA DE SUBIDA A CLOUDINARY ----------
+  Future<String> _uploadImageToCloudinary(File image) async {
+    final uri = Uri.parse('https://api.cloudinary.com/v1_1/dilwitdws/image/upload');
+    final request = http.MultipartRequest('POST', uri);
 
+    request.fields['upload_preset'] = 'flutter_unsigned';
+    request.files.add(await http.MultipartFile.fromPath('file', image.path));
+
+    final response = await request.send();
+    final resBody = await response.stream.bytesToString();
+    final data = jsonDecode(resBody);
+
+    return data['secure_url'];} // URL de la imagen subida
   /*
   try {
       // ★ APARTADO QUE ENVÍA EL REPORTE A TU API
