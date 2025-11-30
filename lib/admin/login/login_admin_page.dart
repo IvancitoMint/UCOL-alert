@@ -29,7 +29,7 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
       };
       print("Inicio de sesion: $nuevosInicioDeSesion");
       
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AdminMain()),
       );
@@ -37,10 +37,6 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
 
     // Aquí iría lógica real de autenticación del administrador
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AdminMain()),
-    );
   }
 
   @override

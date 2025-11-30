@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models.dart';
 import 'report_details.dart';
 import '../../reportes_provider.dart';
-import '../main.dart';
+import '../../user/utils/app_messages.dart';
 
 class AdminMain extends StatefulWidget {
   const AdminMain({super.key});
@@ -69,13 +68,22 @@ class _AdminMainState extends State<AdminMain> {
                       title: Text(r.categoria),
                       subtitle: Text(r.descripcion),
                       trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => DetalleReportePage(reporte: r),
                           ),
                         );
+
+                        // ⬇️ Nuevo: mostrar mensajes según resultado
+                        if (result == "Validado") {
+                          AppMessages().showSuccess(context,"Reporte validado con éxito");
+                        }
+
+                        if (result == "Eliminado") {
+                          AppMessages().showSuccess(context,"Reporte eliminado correctamente");
+                        }
                       },
                     );
                   },

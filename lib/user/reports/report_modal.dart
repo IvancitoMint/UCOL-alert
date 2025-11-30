@@ -205,24 +205,6 @@ class _ReportModalState extends State<ReportModal> {
       AppMessages().showError(context, "Error: $e");
     }
   }
-  /*
-  try {
-      // ★ APARTADO QUE ENVÍA EL REPORTE A TU API
-      final response = await ApiService.post("/reportes", data);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        AppMessages().showSuccess(context, "Reporte creado correctamente");
-        Navigator.pop(context, {
-          "status": "success",
-          "mensaje": "Reporte creado correctamente",
-        });
-      } else {
-        AppMessages().showError(context, "Error al crear el reporte");
-      }
-    } catch (e) {
-      AppMessages().showError(context, "Error: $e");
-    }
-   */
 
   // ---------- UI ---------- //
   @override

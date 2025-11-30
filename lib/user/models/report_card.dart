@@ -110,7 +110,7 @@ class ReportCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          if (report.imagenUrl != null && report.imagenUrl.isNotEmpty)
+          if (report.imagenUrl.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(14),
               child: SizedBox(

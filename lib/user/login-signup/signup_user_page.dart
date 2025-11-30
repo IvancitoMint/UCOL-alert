@@ -83,7 +83,7 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
     };
     
     final url = Uri.parse("${ip}users");
-    final res = await http.post(url, headers: {"Content-Type": "application/json"}, body: jsonEncode(userData));
+    await http.post(url, headers: {"Content-Type": "application/json"}, body: jsonEncode(userData));
 
     playSuccess();
     AppMessages().showSuccess(context, "La cuenta fue registrada satisfactoriamente.");

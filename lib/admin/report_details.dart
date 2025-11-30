@@ -6,8 +6,6 @@ import '../main.dart';
 import '../reportes_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../user/utils/app_messages.dart';
-
 class DetalleReportePage extends StatelessWidget {
   final Reporte reporte;
   const DetalleReportePage({super.key, required this.reporte});
@@ -17,7 +15,7 @@ class DetalleReportePage extends StatelessWidget {
 
     final reporteJson = reporte.toJson();
     final body = {...reporteJson, "estatus": "Pendiente"};
-    //Los estatus de los reportes, se supone, son: 'No revisado' => 'Pendiente' => 'Resuelto'
+    //Los estatus de los reportes, son: 'No revisado' => 'Pendiente' => 'Resuelto'
     print(body);
     final res = await http.put(
       url,
@@ -31,12 +29,8 @@ class DetalleReportePage extends StatelessWidget {
         context,
         listen: false,
       ).eliminarReporte(reporte.id);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Reporte validado con éxito")),
-      );
-
-      Navigator.pop(context, true);
+      
+      Navigator.pop(context, "Validado");
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Error al validar el reporte")),
@@ -56,11 +50,7 @@ class DetalleReportePage extends StatelessWidget {
         listen: false,
       ).eliminarReporte(reporte.id);
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Reporte eliminado")));
-
-      Navigator.pop(context, true);
+      Navigator.pop(context, "Eliminado");
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error al eliminar (${res.statusCode})")),
