@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'models.dart';
+import '../models.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../main.dart';
+import '../reportes_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../user/utils/app_messages.dart';
 
@@ -14,20 +16,8 @@ class DetalleReportePage extends StatelessWidget {
     final url = Uri.parse("${ip}reportes/${reporte.id}");
 
     final reporteJson = reporte.toJson();
-
-    final body = {
-      "id": reporteJson["id"],
-      "autor": reporteJson["autor"],
-      "estatus": "aceptado", // ACTUALIZADO
-      "descripcion": reporteJson["descripcion"],
-      "ubicacion": reporteJson["ubicacion"],
-      "categoria": reporteJson["categoria"],
-      "foto": reporteJson["foto"],
-      "likes": reporteJson["likes"],
-      "comentarios": reporteJson["comentarios"],
-      "emergencia": reporteJson["emergencia"],
-      "fecha": reporteJson["fecha"],
-    };
+    final body = {...reporteJson, "estatus": "Pendiente"};
+    //Los estatus de los reportes, se supone, son: 'No revisado' => 'Pendiente' => 'Resuelto'
 
     final res = await http.put(
       url,
@@ -36,9 +26,16 @@ class DetalleReportePage extends StatelessWidget {
     );
 
     if (res.statusCode == 200) {
+      // ❗ Quitar el reporte validado
+      Provider.of<ReportesProvider>(
+        context,
+        listen: false,
+      ).eliminarReporte(reporte.id);
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Reporte validado con éxito")),
       );
+
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -53,9 +50,16 @@ class DetalleReportePage extends StatelessWidget {
     final res = await http.delete(url);
 
     if (res.statusCode == 204) {
+      // ❗ Eliminar de la lista local también
+      Provider.of<ReportesProvider>(
+        context,
+        listen: false,
+      ).eliminarReporte(reporte.id);
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Reporte eliminado")));
+
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

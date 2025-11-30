@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../reportes_provider.dart';
 import 'sidebar/sidebar_page.dart';
 import 'utils/app_messages.dart';
 
@@ -9,68 +11,34 @@ import 'models/report_card.dart';
 import 'reports/report_modal.dart';
 import 'reports/emergency_modal.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
-  // ---------- REPORTS LIST ---------- //
-  List<ReportModel> getReports() {
-    return [
-      ReportModel(
-        usuario: "Carlos Ramírez",
-        avatarUrl: "https://randomuser.me/api/portraits/men/32.jpg",
-        tiempo: "hace 7 días",
-        ubicacion: "Edificio A",
-        estado: "Pendiente",
-        descripcion:
-            "Baño descompuesto en el segundo piso del edificio A. Está inundado y necesita reparación urgente.",
-        categoria: "Mantenimiento",
-        imagenUrl:
-            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-        likes: 12,
-        comments: 3,
-      ),
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
-      ReportModel(
-        usuario: "Lucía Hernández",
-        avatarUrl: "https://randomuser.me/api/portraits/women/22.jpg",
-        tiempo: "hace 2 días",
-        ubicacion: "Biblioteca",
-        estado: "En proceso",
-        descripcion:
-            "El aire acondicionado está fallando y emite ruido fuerte.",
-        categoria: "Servicios",
-        imagenUrl:
-            "https://images.unsplash.com/photo-1507668077129-56e328d7a34b",
-        likes: 8,
-        comments: 1,
-      ),
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
 
-      ReportModel(
-        usuario: "Miguel Torres",
-        avatarUrl: "https://randomuser.me/api/portraits/men/45.jpg",
-        tiempo: "hace 1 día",
-        ubicacion: "Cafetería",
-        estado: "Resuelto",
-        descripcion:
-            "La máquina de café no funciona correctamente y necesita mantenimiento.",
-        categoria: "Servicios",
-        imagenUrl:
-            "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
-        likes: 15,
-        comments: 4,
-      ),
-    ];
+    // Cargar reportes desde la API al iniciar
+    Future.microtask(() {
+      Provider.of<ReportesProvider>(context, listen: false).cargarReportes();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final reports = getReports();
+    final reportesProvider = Provider.of<ReportesProvider>(context);
+    final reportes = reportesProvider.reportes;
 
     return Scaffold(
       drawer: const SideBar(),
       backgroundColor: const Color(0xFFF4F4F4),
 
-      // ---------- TOP APP BAR ---------- //
+      // ---------- APP BAR ---------- //
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -87,27 +55,69 @@ class HomePage extends StatelessWidget {
         ),
       ),
 
-      // ---------- CONTENT FOR REPORTS ---------- //
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            const Text(
-              "Reportes Recientes",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
+      // ---------- BODY ---------- //
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Provider.of<ReportesProvider>(
+            context,
+            listen: false,
+          ).cargarReportes();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
+              const Text(
+                "Reportes Recientes",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 16),
 
-            ...reports.map((r) => ReportCard(report: r)).toList(),
+              // ---------- LOADING ---------- //
+              if (reportesProvider.cargando)
+                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
 
-            const SizedBox(height: 120),
-          ],
+              // ---------- EMPTY ---------- //
+              if (!reportesProvider.cargando && reportes.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 40),
+                    child: Text(
+                      "No hay reportes todavía.",
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                    ),
+                  ),
+                ),
+
+              // ---------- REPORT LIST ---------- //
+              ...reportes.map((r) {
+                return ReportCard(
+                  report: ReportModel(
+                    usuario: r.autor,
+                    avatarUrl:
+                        "https://ui-avatars.com/api/?name=${r.autor}", // avatar temporal
+                    tiempo: r.fecha.creacion,
+                    ubicacion: r.ubicacion,
+                    estado: r.estatus,
+                    descripcion: r.descripcion,
+                    categoria: r.categoria,
+                    imagenUrl: (r.foto.isNotEmpty) ? r.foto.first : "",
+                    likes: r.likes.length,
+                    comments: r.comentarios.length,
+                  ),
+                );
+              }).toList(),
+
+              const SizedBox(height: 120),
+            ],
+          ),
         ),
       ),
 
-      // ---------- BOTTOM BAR ---------- //
+      // ---------- BOTTOM NAV BAR ---------- //
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(vertical: 15),
         decoration: const BoxDecoration(
@@ -123,7 +133,7 @@ class HomePage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // ---------- BUTTONS ---------- //
+            // ---------- HOME ---------- //
             GestureDetector(
               onTap: () {},
               child: Column(
@@ -147,6 +157,12 @@ class HomePage extends StatelessWidget {
 
                 if (result != null && result["status"] == "success") {
                   AppMessages().showSuccess(context, result["mensaje"]);
+
+                  // Recargar reportes después de crear uno
+                  Provider.of<ReportesProvider>(
+                    context,
+                    listen: false,
+                  ).cargarReportes();
                 }
               },
               child: Column(
@@ -170,6 +186,10 @@ class HomePage extends StatelessWidget {
 
                 if (result != null && result["status"] == "success") {
                   AppMessages().showSuccess(context, result["mensaje"]);
+                  Provider.of<ReportesProvider>(
+                    context,
+                    listen: false,
+                  ).cargarReportes();
                 }
               },
               child: Column(

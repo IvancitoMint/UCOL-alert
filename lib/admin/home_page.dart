@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:provider/provider.dart';
 
-import 'models.dart'; // Modelo Reporte + Fecha
-import 'report_details.dart'; // Pantalla de detalles
+import '../models.dart';
+import 'report_details.dart';
+import '../../reportes_provider.dart';
 import '../main.dart';
 
 class AdminMain extends StatefulWidget {
@@ -14,77 +14,56 @@ class AdminMain extends StatefulWidget {
 }
 
 class _AdminMainState extends State<AdminMain> {
-  late Future<List<Reporte>> futureReportes;
-
-  // URL de FastAPI
-  final String apiUrl = "${ip}reportes";
-
   @override
   void initState() {
     super.initState();
-    futureReportes = fetchReportesNormales();
-  }
 
-  // ==========================
-  //   OBTENER REPORTES
-  // ==========================
-  Future<List<Reporte>> fetchReportesNormales() async {
-    final res = await http.get(Uri.parse(apiUrl));
-
-    if (res.statusCode != 200) {
-      throw Exception("Error cargando reportes");
-    }
-
-    final List data = json.decode(res.body);
-
-    return data
-        .map((json) => Reporte.fromJson(json))
-        .where((r) => r.emergencia == false)
-        .where((r) => r.estatus == "No revisado")
-        .toList();
+    // Cargar reportes una sola vez
+    Future.microtask(() {
+      Provider.of<ReportesProvider>(context, listen: false).cargarReportes();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ReportesProvider>(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text("Panel de administrador")),
+
       body: Column(
         children: [
           const Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16),
             child: Text(
               "Reportes No revisados",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
 
-          // ==========================
-          //     LISTA DESDE BACKEND
-          // ==========================
           Expanded(
-            child: FutureBuilder<List<Reporte>>(
-              future: futureReportes,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+            child: Builder(
+              builder: (_) {
+                if (provider.cargando) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}"));
-                }
+                // FILTRADO (tal como antes)
+                final reportesPendientes = provider.reportes
+                    .where((r) => r.emergencia == false)
+                    .where((r) => r.estatus == "No revisado")
+                    .toList();
 
-                final reportes = snapshot.data!;
-
-                if (reportes.isEmpty) {
+                if (reportesPendientes.isEmpty) {
                   return const Center(
                     child: Text("No hay reportes pendientes."),
                   );
                 }
 
                 return ListView.builder(
-                  itemCount: reportes.length,
-                  itemBuilder: (context, i) {
-                    final r = reportes[i];
+                  itemCount: reportesPendientes.length,
+                  itemBuilder: (_, i) {
+                    final r = reportesPendientes[i];
 
                     return ListTile(
                       title: Text(r.categoria),

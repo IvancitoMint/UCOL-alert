@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
-import 'login_main_page.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/rendering.dart';
 
+import 'login_main_page.dart';
+import 'reportes_provider.dart';
+import 'dart:ui' as ui;
+
+// ----- GLOBALS -----
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-// Variable global para la IP
-final String ip = "http://192.168.100.10:8000/";
+final String ip = "http://192.168.244.174:8000/";
 
 void main() {
-  runApp(const MyApp());
+  RenderErrorBox.backgroundColor = const ui.Color(0x00000000);
+  RenderErrorBox.textStyle = ui.TextStyle(color: const ui.Color(0x00000000));
+
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => ReportesProvider())],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,8 +37,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
       ),
 
-      // ---------- LOGIN PAGE AS HOME SCREEN ---------- //
+      // Página inicial
       home: const LoginMainPage(),
+
       routes: {'/login': (context) => const LoginMainPage()},
     );
   }
