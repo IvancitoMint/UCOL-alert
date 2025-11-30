@@ -32,7 +32,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final reportesProvider = Provider.of<ReportesProvider>(context);
-    final reportes = reportesProvider.reportes;
+
+    final reportes = reportesProvider.reportes
+        .where((r) => r.estatus != "Resuelto")
+        .toList();
 
     return Scaffold(
       drawer: const SideBar(),

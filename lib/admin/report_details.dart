@@ -18,7 +18,7 @@ class DetalleReportePage extends StatelessWidget {
     final reporteJson = reporte.toJson();
     final body = {...reporteJson, "estatus": "Pendiente"};
     //Los estatus de los reportes, se supone, son: 'No revisado' => 'Pendiente' => 'Resuelto'
-
+    print(body);
     final res = await http.put(
       url,
       headers: {"Content-Type": "application/json"},
@@ -137,18 +137,41 @@ class DetalleReportePage extends StatelessWidget {
 
             Divider(height: 30, thickness: 1, color: Colors.grey[300]),
 
-            Container(
-              height: 230,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.black),
-              ),
-              child: Center(
-                child: Text(
-                  "Foto de evidencia (aún no implementada)",
-                  style: TextStyle(color: Colors.grey.shade600),
-                ),
-              ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: reporte.foto.first == null || reporte.foto.isEmpty
+                  ? Container(
+                      height: 230,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        border: Border.all(color: Colors.black12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Sin imagen adjunta",
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                      ),
+                    )
+                  : Image.network(
+                      reporte.foto.first,
+                      height: 230,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 230,
+                          color: Colors.grey.shade200,
+                          child: Center(
+                            child: Text(
+                              "Error al cargar la imagen",
+                              style: TextStyle(color: Colors.grey.shade600),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
 
             const Spacer(),

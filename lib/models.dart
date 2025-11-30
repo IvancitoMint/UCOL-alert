@@ -27,7 +27,7 @@ class Reporte {
 
   factory Reporte.fromJson(Map<String, dynamic> json) {
     return Reporte(
-      id: json['_id'].toString(),
+      id: json['id'].toString(),
       autor: json['autor'],
       estatus: json['estatus'],
       descripcion: json['descripcion'],
@@ -43,6 +43,7 @@ class Reporte {
 
   Map<String, dynamic> toJson() {
     return {
+      "_id": id,
       "autor": autor,
       "estatus": estatus,
       "descripcion": descripcion,

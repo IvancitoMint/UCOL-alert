@@ -23,6 +23,7 @@ class ReportesProvider extends ChangeNotifier {
       final List data = json.decode(res.body);
 
       _reportes = data.map((e) => Reporte.fromJson(e)).toList();
+      print(_reportes);
     }
 
     cargando = false;

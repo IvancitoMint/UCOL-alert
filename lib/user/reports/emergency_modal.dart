@@ -150,7 +150,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
     // ---------- CREAR JSON PARA API ---------- //
     final Map<String, dynamic> data = {
       "autor": autorSimulado,
-      "estatus": "No revisado",
+      "estatus": "Pendiente",
       "descripcion": _descriptionController.text,
       "ubicacion": _selectedLocation,
       "categoria": "emergencia", // <-- en minúsculas si así es tu backend
