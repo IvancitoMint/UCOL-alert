@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ucol_alert/audio_management.dart';
 
 import '../utils/ask_permissions.dart';
 import '../utils/image_picker_helper.dart';
@@ -43,17 +44,20 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
         correoController.text.isEmpty ||
         passwordController.text.isEmpty ||
         _selectedCampus == null) {
+      playError();
       AppMessages().showError(context, "Por favor completa todos los campos requeridos.");
       return;
     }
 
     if (!correoController.text.trim().endsWith("@ucol.mx")) {
+      playError();
       AppMessages().showEmailRegistered(context, "El correo debe ser institucional (@ucol.mx)");
       return;
     }
 
     final emailExists = await http.get(Uri.parse("${ip}verify_email?email=${correoController.text.trim()}"));
     if (int.parse(emailExists.body) > 0) {
+      playError();
       AppMessages().showError(context, "Este email ya está registrado.");
       return;
     }
@@ -75,6 +79,7 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
     final url = Uri.parse("${ip}users");
     final res = await http.post(url, headers: {"Content-Type": "application/json"}, body: jsonEncode(userData));
 
+    playSuccess();
     AppMessages().showSuccess(context, "La cuenta fue registrada satisfactoriamente.");
   }
 

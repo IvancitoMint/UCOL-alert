@@ -6,6 +6,7 @@ import 'signup_user_page.dart';
 import '../home_page.dart';
 import '../utils/app_messages.dart';
 import '../../main.dart';
+import '../../audio_management.dart';
 
 class LoginUserPage extends StatefulWidget {
   const LoginUserPage({super.key});
@@ -33,10 +34,10 @@ class _LoginUserPageState extends State<LoginUserPage> {
     };
 
     final url = Uri.parse("${ip}token");
-    print(userData);
     final res = await http.post(url, headers: {"Content-Type": "application/x-www-form-urlencoded"}, body: userData);
 
     if (res.statusCode == 401) {
+      playError();
       AppMessages().showError(context, "Las credenciales son incorrectas. Intentalo nuevamente.");
       return;
     }
@@ -44,6 +45,7 @@ class _LoginUserPageState extends State<LoginUserPage> {
       context,
       MaterialPageRoute(builder: (context) => const HomePage()),
     );
+    playSuccess();
     AppMessages().showSuccess(context, "¡Bienvenido de nuevo!");
   }
 
