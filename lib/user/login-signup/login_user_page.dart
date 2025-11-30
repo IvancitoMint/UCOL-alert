@@ -24,6 +24,7 @@ class _LoginUserPageState extends State<LoginUserPage> {
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
+      playError();
       AppMessages().showError(context, "Por favor completa todos los campos para iniciar sesión.");
       return;
     }

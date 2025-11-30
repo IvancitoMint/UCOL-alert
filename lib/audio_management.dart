@@ -1,10 +1,12 @@
 import 'package:audioplayers/audioplayers.dart';
 
+final player = AudioPlayer();
+
 void playSuccess() async {
-  await AudioPlayer().play(AssetSource("success.wav"));
+  await player.play(AssetSource("success.wav"));
 }
 
 
 void playError() async {
-  await AudioPlayer().play(AssetSource("error.wav"));
+  await player.play(AssetSource("error.wav"));
 }

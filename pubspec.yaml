@@ -68,8 +68,8 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
-    - lib/assets/success.wav
-    - lib/assets/error.wav
+    - assets/success.wav
+    - assets/error.wav
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
