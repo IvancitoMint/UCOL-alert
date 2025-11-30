@@ -21,14 +21,13 @@ class ReportCard extends StatelessWidget {
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           // ---------- USER HEADER ---------- //
           Row(
             children: [
@@ -50,15 +49,20 @@ class ReportCard extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      Text(report.tiempo,
-                          style: TextStyle(
-                              color: Colors.grey.shade600)),
+                      Text(
+                        report.tiempo,
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
                       const SizedBox(width: 6),
                       const Icon(Icons.circle, size: 4),
                       const SizedBox(width: 6),
-                      Text(report.ubicacion,
-                          style: const TextStyle(
-                              color: Colors.grey, fontSize: 13)),
+                      Text(
+                        report.ubicacion,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 13,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -67,8 +71,10 @@ class ReportCard extends StatelessWidget {
               const Spacer(),
 
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF3CD),
                   borderRadius: BorderRadius.circular(10),
@@ -86,10 +92,7 @@ class ReportCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          Text(
-            report.descripcion,
-            style: const TextStyle(fontSize: 15),
-          ),
+          Text(report.descripcion, style: const TextStyle(fontSize: 15)),
 
           const SizedBox(height: 10),
 
@@ -101,23 +104,30 @@ class ReportCard extends StatelessWidget {
             ),
             child: Text(
               report.categoria,
-              style: TextStyle(
-                color: Colors.blue.shade700,
-              ),
+              style: TextStyle(color: Colors.blue.shade700),
             ),
           ),
 
           const SizedBox(height: 16),
 
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Image.network(
-              report.imagenUrl,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
+          if (report.imagenUrl != null && report.imagenUrl.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: Image.network(
+                  report.imagenUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Si la imagen falla, NO muestra nada (evita overflow)
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+            )
+          else
+            const SizedBox.shrink(),
 
           const SizedBox(height: 12),
 
@@ -129,21 +139,37 @@ class ReportCard extends StatelessWidget {
                 isScrollControlled: true,
                 builder: (_) => LikesModal(
                   likes: [
-                    LikeUser(name: "María Gómez", photoUrl: "https://randomuser.me/api/portraits/women/44.jpg"),
-                    LikeUser(name: "Luis Pérez", photoUrl: "https://randomuser.me/api/portraits/men/12.jpg"),
-                    LikeUser(name: "Karla Díaz", photoUrl: "https://randomuser.me/api/portraits/women/8.jpg"),
+                    LikeUser(
+                      name: "María Gómez",
+                      photoUrl:
+                          "https://randomuser.me/api/portraits/women/44.jpg",
+                    ),
+                    LikeUser(
+                      name: "Luis Pérez",
+                      photoUrl:
+                          "https://randomuser.me/api/portraits/men/12.jpg",
+                    ),
+                    LikeUser(
+                      name: "Karla Díaz",
+                      photoUrl:
+                          "https://randomuser.me/api/portraits/women/8.jpg",
+                    ),
                   ],
                 ),
               );
             },
             child: Row(
               children: [
-                Icon(Icons.thumb_up_alt_outlined, size: 22, color: Colors.grey.shade600),
+                Icon(
+                  Icons.thumb_up_alt_outlined,
+                  size: 22,
+                  color: Colors.grey.shade600,
+                ),
                 const SizedBox(width: 4),
                 const Text("12"),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
