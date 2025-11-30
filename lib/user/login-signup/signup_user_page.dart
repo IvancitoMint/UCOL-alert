@@ -49,6 +49,12 @@ class _SignUpUserPageState extends State<SignUpUserPage> {
       return;
     }
 
+    if (passwordController.text.length < 6) {
+      playError();
+      AppMessages().showError(context, "La contraseña debe ser mayor a 6 caracteres");
+      return;
+    }
+
     if (!correoController.text.trim().endsWith("@ucol.mx")) {
       playError();
       AppMessages().showEmailRegistered(context, "El correo debe ser institucional (@ucol.mx)");
