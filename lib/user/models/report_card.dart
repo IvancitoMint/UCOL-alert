@@ -4,6 +4,9 @@ import '../models/report_model.dart';
 import 'likes_model.dart';
 import 'likes_card.dart';
 
+import '../../reportes_provider.dart';
+import 'package:provider/provider.dart';
+
 class ReportCard extends StatelessWidget {
   final ReportModel report;
 
@@ -132,30 +135,20 @@ class ReportCard extends StatelessWidget {
           const SizedBox(height: 12),
 
           GestureDetector(
-            onLongPress: () {
+            onLongPress: () async {
+              final provider = Provider.of<ReportesProvider>(
+                context,
+                listen: false,
+              );
+              final usuarios = await provider.cargarUsuariosDeLikes(
+                report.likes,
+              );
+
               showModalBottomSheet(
                 context: context,
                 backgroundColor: Colors.transparent,
                 isScrollControlled: true,
-                builder: (_) => LikesModal(
-                  likes: [
-                    LikeUser(
-                      name: "María Gómez",
-                      photoUrl:
-                          "https://randomuser.me/api/portraits/women/44.jpg",
-                    ),
-                    LikeUser(
-                      name: "Luis Pérez",
-                      photoUrl:
-                          "https://randomuser.me/api/portraits/men/12.jpg",
-                    ),
-                    LikeUser(
-                      name: "Karla Díaz",
-                      photoUrl:
-                          "https://randomuser.me/api/portraits/women/8.jpg",
-                    ),
-                  ],
-                ),
+                builder: (_) => LikesModal(likes: usuarios),
               );
             },
             child: Row(
@@ -166,7 +159,7 @@ class ReportCard extends StatelessWidget {
                   color: Colors.grey.shade600,
                 ),
                 const SizedBox(width: 4),
-                const Text("12"),
+                Text("${report.likes.length}"),
               ],
             ),
           ),

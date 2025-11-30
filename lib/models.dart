@@ -1,4 +1,4 @@
-class Reporte {
+class Report {
   final String id;
   final String autor;
   final String estatus;
@@ -11,7 +11,7 @@ class Reporte {
   final bool emergencia;
   final Fecha fecha;
 
-  Reporte({
+  Report({
     required this.id,
     required this.autor,
     required this.estatus,
@@ -25,8 +25,8 @@ class Reporte {
     required this.fecha,
   });
 
-  factory Reporte.fromJson(Map<String, dynamic> json) {
-    return Reporte(
+  factory Report.fromJson(Map<String, dynamic> json) {
+    return Report(
       id: json['id'].toString(),
       autor: json['autor'],
       estatus: json['estatus'],

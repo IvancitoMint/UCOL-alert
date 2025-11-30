@@ -170,7 +170,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         // 2. Convertir respuesta a modelo
-        final nuevoReporte = Reporte.fromJson(jsonDecode(response.body));
+        final nuevoReporte = Report.fromJson(jsonDecode(response.body));
 
         // 3. Agregar al Provider para actualización en tiempo real
         Provider.of<ReportesProvider>(

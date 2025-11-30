@@ -7,7 +7,7 @@ class ReportModel {
   final String descripcion;
   final String categoria;
   final String imagenUrl;
-  final int likes;
+  final List likes;
   final int comments;
 
   ReportModel({
@@ -33,8 +33,10 @@ class ReportModel {
       descripcion: json["descripcion"],
       categoria: json["categoria"],
       imagenUrl: json["imagenUrl"],
-      likes: json["likes"],
-      comments: json["comments"],
+      likes: json["likes"] != null
+          ? List<String>.from(json["likes"])
+          : <String>[],
+      comments: json["comments"] ?? 0,
     );
   }
 }

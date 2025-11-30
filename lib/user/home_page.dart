@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
     final reportesProvider = Provider.of<ReportesProvider>(context);
 
     final reportes = reportesProvider.reportes
-        .where((r) => r.estatus != "Resuelto")
+        .where((r) => r.estatus != "No revisado")
         .toList();
 
     return Scaffold(
@@ -108,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                     descripcion: r.descripcion,
                     categoria: r.categoria,
                     imagenUrl: (r.foto.isNotEmpty) ? r.foto.first : "",
-                    likes: r.likes.length,
+                    likes: r.likes,
                     comments: r.comentarios.length,
                   ),
                 );

@@ -7,7 +7,7 @@ import '../reportes_provider.dart';
 import 'package:provider/provider.dart';
 
 class DetalleReportePage extends StatelessWidget {
-  final Reporte reporte;
+  final Report reporte;
   const DetalleReportePage({super.key, required this.reporte});
 
   Future<void> validarReporte(BuildContext context) async {
@@ -29,7 +29,7 @@ class DetalleReportePage extends StatelessWidget {
         context,
         listen: false,
       ).eliminarReporte(reporte.id);
-      
+
       Navigator.pop(context, "Validado");
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

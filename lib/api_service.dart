@@ -4,14 +4,14 @@ import '../models.dart';
 import '../main.dart';
 
 class ApiService {
-  static Future<List<Reporte>> obtenerReportes() async {
+  static Future<List<Report>> obtenerReportes() async {
     final url = Uri.parse("${ip}reportes");
 
     final respuesta = await http.get(url);
 
     if (respuesta.statusCode == 200) {
       final List data = json.decode(respuesta.body);
-      return data.map((e) => Reporte.fromJson(e)).toList();
+      return data.map((e) => Report.fromJson(e)).toList();
     } else {
       throw Exception("Error al obtener reportes");
     }
