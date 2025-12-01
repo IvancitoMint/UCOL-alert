@@ -60,6 +60,26 @@ class ReportesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<Map<String, dynamic>> cargarDatosUsuario(String userId) async {
+    final res = await http.get(Uri.parse("$apiUsuario/$userId"));
+
+    if (res.statusCode == 200) {
+      final data = json.decode(res.body);
+
+      return {
+        "nombre": data["nombre"] ?? "Usuario desconocido",
+        "foto":
+            data["foto_perfil"] ??
+            "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+      };
+    }
+
+    return {
+      "nombre": "Usuario desconocido",
+      "foto": "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+    };
+  }
+
   // =====================================================
   //       CARGAR USUARIOS DE LISTA DE LIKES
   // =====================================================
@@ -75,7 +95,7 @@ class ReportesProvider extends ChangeNotifier {
           LikeUser(
             name: data["nombre"] ?? "Usuario desconocido",
             photoUrl:
-                data["foto"] ??
+                data["foto_perfil"] ??
                 "https://cdn-icons-png.flaticon.com/512/149/149071.png",
           ),
         );

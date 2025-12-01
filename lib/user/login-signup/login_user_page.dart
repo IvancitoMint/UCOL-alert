@@ -55,7 +55,10 @@ class _LoginUserPageState extends State<LoginUserPage> {
 
     if (resUser.statusCode != 200) {
       playError();
-      AppMessages().showError(context, "No se pudo obtener la información del usuario.");
+      AppMessages().showError(
+        context,
+        "No se pudo obtener la información del usuario.",
+      );
       return;
     }
 
@@ -63,6 +66,8 @@ class _LoginUserPageState extends State<LoginUserPage> {
     final String userId = data["id"].toString();
     final String userName = data["nombre"];
     final String userFoto = data["foto"];
+
+    print("LOGIN OK -> Guardado userId: $userId");
 
     // ===== GUARDAR DATOS DEL USUARIO ===== //
     await SessionManagerUser.saveUserData(userId, userName, email, userFoto);
@@ -104,7 +109,9 @@ class _LoginUserPageState extends State<LoginUserPage> {
               TextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: 'Correo electrónico'),
+                decoration: const InputDecoration(
+                  labelText: 'Correo electrónico',
+                ),
               ),
               const SizedBox(height: 20),
 
@@ -145,7 +152,10 @@ class _LoginUserPageState extends State<LoginUserPage> {
                   );
 
                   if (result == "success") {
-                    AppMessages().showSuccess(context, "Cuenta creada correctamente.");
+                    AppMessages().showSuccess(
+                      context,
+                      "Cuenta creada correctamente.",
+                    );
                   }
                 },
                 child: Padding(

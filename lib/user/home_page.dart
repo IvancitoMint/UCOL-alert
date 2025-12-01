@@ -110,23 +110,38 @@ class _HomePageState extends State<HomePage> {
 
               // ---------- REPORT LIST ---------- //
               ...reportes.map((r) {
-                return ReportCard(
-                  reportUi: ReportModel(
-                    id: r.id,
-                    usuario: r.autor,
-                    avatarUrl:
-                        "https://ui-avatars.com/api/?name=${r.autor}", // avatar temporal
-                    tiempo: r.fecha.creacion,
-                    ubicacion: r.ubicacion,
-                    estado: r.estatus,
-                    descripcion: r.descripcion,
-                    categoria: r.categoria,
-                    imagenUrl: (r.foto.isNotEmpty) ? r.foto.first : "",
-                    likes: r.likes,
-                    comments: r.comentarios.length,
-                  ),
-                  reportBackend: r,
-                  currentUserId: userId ?? '',
+                return FutureBuilder(
+                  future: reportesProvider.cargarDatosUsuario(r.autor),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: LinearProgressIndicator(),
+                      );
+                    }
+
+                    final datos = snapshot.data!;
+                    final nombreAutor = datos["nombre"];
+                    final fotoAutor = datos["foto"];
+
+                    return ReportCard(
+                      reportUi: ReportModel(
+                        id: r.id,
+                        usuario: nombreAutor,
+                        avatarUrl: fotoAutor,
+                        tiempo: r.fecha.creacion,
+                        ubicacion: r.ubicacion,
+                        estado: r.estatus,
+                        descripcion: r.descripcion,
+                        categoria: r.categoria,
+                        imagenUrl: (r.foto.isNotEmpty) ? r.foto.first : "",
+                        likes: r.likes,
+                        comments: r.comentarios.length,
+                      ),
+                      reportBackend: r,
+                      currentUserId: userId ?? '',
+                    );
+                  },
                 );
               }),
 
