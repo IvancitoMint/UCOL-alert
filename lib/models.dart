@@ -1,6 +1,7 @@
 class Report {
   final String id;
   final String autor;
+  final String autor_nombre;
   final String estatus;
   final String descripcion;
   final String ubicacion;
@@ -14,6 +15,7 @@ class Report {
   Report({
     required this.id,
     required this.autor,
+    required this.autor_nombre,
     required this.estatus,
     required this.descripcion,
     required this.ubicacion,
@@ -29,6 +31,7 @@ class Report {
     return Report(
       id: json['id'].toString(),
       autor: json['autor'],
+      autor_nombre: json['autor_nombre'],
       estatus: json['estatus'],
       descripcion: json['descripcion'],
       ubicacion: json['ubicacion'],
@@ -45,6 +48,7 @@ class Report {
     return {
       "_id": id,
       "autor": autor,
+      "autor_nombre": autor_nombre,
       "estatus": estatus,
       "descripcion": descripcion,
       "ubicacion": ubicacion,
