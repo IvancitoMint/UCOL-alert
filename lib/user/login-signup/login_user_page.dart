@@ -35,9 +35,13 @@ class _LoginUserPageState extends State<LoginUserPage> {
       "password": passwordController.text,
     };
 
-    // ===== LOGIN =====
+    // ===== LOGIN - TOKEN =====
     final url = Uri.parse("${ip}token");
-    final res = await http.post(url, headers: {"Content-Type": "application/x-www-form-urlencoded"}, body: userData);
+    final res = await http.post(
+      url,
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body: userData,
+    );
 
     if (res.statusCode == 401) {
       playError();
@@ -45,7 +49,7 @@ class _LoginUserPageState extends State<LoginUserPage> {
       return;
     }
 
-    // ===== PEDIR ID Y NOMBRE AL BACKEND ===== //
+    // ===== PEDIR ID / NOMBRE / FOTO ===== //
     final urlUser = Uri.parse("${ip}users/id?email=$email");
     final resUser = await http.get(urlUser);
 
@@ -56,11 +60,12 @@ class _LoginUserPageState extends State<LoginUserPage> {
     }
 
     final data = jsonDecode(resUser.body);
-    final String userId = data["id"];
+    final String userId = data["id"].toString();
     final String userName = data["nombre"];
+    final String userFoto = data["foto"];
 
     // ===== GUARDAR DATOS DEL USUARIO ===== //
-    await SessionManagerUser.saveUserData(userId, userName, email);
+    await SessionManagerUser.saveUserData(userId, userName, email, userFoto);
 
     // ===== NAVEGAR AL HOME ===== //
     Navigator.pushReplacement(
@@ -69,7 +74,7 @@ class _LoginUserPageState extends State<LoginUserPage> {
     );
 
     playSuccess();
-    AppMessages().showSuccess(context, "¡Bienvenido, $userName!");
+    AppMessages().showSuccess(context, "¡Bienvenido $userName!");
   }
 
   @override
@@ -82,14 +87,18 @@ class _LoginUserPageState extends State<LoginUserPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Bienvenido usuario',
+              const Text(
+                'Bienvenido usuario',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 12),
 
-              Text('Inicia sesión para continuar',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey.shade700)),
+              Text(
+                'Inicia sesión para continuar',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
               const SizedBox(height: 40),
 
               TextField(
@@ -117,8 +126,10 @@ class _LoginUserPageState extends State<LoginUserPage> {
                     ),
                   ),
                   onPressed: _login,
-                  child: const Text('Iniciar sesión',
-                      style: TextStyle(color: Colors.white, fontSize: 17)),
+                  child: const Text(
+                    'Iniciar sesión',
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
                 ),
               ),
 

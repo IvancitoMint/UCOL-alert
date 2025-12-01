@@ -6,13 +6,41 @@ import 'likes_card.dart';
 import '../../reportes_provider.dart';
 import 'package:provider/provider.dart';
 
-class ReportCard extends StatelessWidget {
+import '../utils/session_manager_user.dart';
+
+class ReportCard extends StatefulWidget {
   final ReportModel report;
 
   const ReportCard({super.key, required this.report});
 
   @override
+  State<ReportCard> createState() => _ReportCardState();
+}
+
+class _ReportCardState extends State<ReportCard> {
+    String? userName;
+  String? userFoto;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  Future<void> loadUserData() async {
+    final name = await SessionManagerUser.getUserName();
+    final foto = await SessionManagerUser.getUserFoto();
+
+    setState(() {
+      userName = name;
+      userFoto = foto;
+      
+    });
+  }
+  @override
   Widget build(BuildContext context) {
+    final report = widget.report; // más corto para usar abajo
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -58,41 +86,45 @@ class ReportCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       const Icon(Icons.circle, size: 4),
                       const SizedBox(width: 6),
-                      Text(
-                        report.ubicacion,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 13,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF3CD),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          report.estado,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF996F00),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ],
               ),
-
-              const Spacer(),
-
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3CD),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  report.estado,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF996F00),
-                  ),
-                ),
-              ),
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Text(
+                report.ubicacion,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 13,
+                ),
+              )
+            ],
+          ),
+
+          const SizedBox(height: 10),
 
           Text(report.descripcion, style: const TextStyle(fontSize: 15)),
 
@@ -122,7 +154,6 @@ class ReportCard extends StatelessWidget {
                   report.imagenUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    // Si la imagen falla, NO muestra nada (evita overflow)
                     return const SizedBox.shrink();
                   },
                 ),

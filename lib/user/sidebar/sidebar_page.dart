@@ -3,11 +3,37 @@ import 'package:flutter/material.dart';
 import 'profile_page.dart';
 import 'my_reports_page.dart';
 import 'settings_page.dart';
-//import 'sidebar/help_page.dart';
 
-class SideBar extends StatelessWidget {
+import '../utils/session_manager_user.dart';
+
+class SideBar extends StatefulWidget {
   const SideBar({super.key});
-  
+
+  @override
+  State<SideBar> createState() => _SideBarState();
+}
+
+class _SideBarState extends State<SideBar> {
+  String? userName;
+  String? userFoto;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  Future<void> loadUserData() async {
+    final name = await SessionManagerUser.getUserName();
+    final foto = await SessionManagerUser.getUserFoto();
+
+    setState(() {
+      userName = name;
+      userFoto = foto;
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -50,12 +76,19 @@ class SideBar extends StatelessWidget {
             const SizedBox(height: 20),
             const Divider(),
 
-            // ----------PROFILE PHOTO---------- //
+            // ---------- PROFILE PHOTO + NAME ---------- //
             ListTile(
-              leading: const CircleAvatar(
-                backgroundImage: AssetImage("assets/profile.jpg"),
+              leading: CircleAvatar(
+                radius: 26,
+                backgroundColor: Colors.grey.shade300,
+                backgroundImage: (userFoto != null && userFoto!.isNotEmpty)
+                  ? NetworkImage(userFoto!)
+                  : const AssetImage("assets/profile.jpg") as ImageProvider,
               ),
-              title: const Text("María González"),
+              title: Text(
+                userName ?? "Cargando...",
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
               subtitle: const Text("En línea"),
             ),
 
@@ -68,7 +101,9 @@ class SideBar extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => ProfilePage()));
+                  context,
+                  MaterialPageRoute(builder: (_) => ProfilePage()),
+                );
               },
             ),
 
@@ -78,7 +113,9 @@ class SideBar extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => MyReportsPage()));
+                  context,
+                  MaterialPageRoute(builder: (_) => MyReportsPage()),
+                );
               },
             ),
 
@@ -88,7 +125,9 @@ class SideBar extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => SettingsPage()));
+                  context,
+                  MaterialPageRoute(builder: (_) => SettingsPage()),
+                );
               },
             ),
 
@@ -97,8 +136,10 @@ class SideBar extends StatelessWidget {
             // ---------- FOOTER ---------- //
             const Padding(
               padding: EdgeInsets.all(16),
-              child: Text("© 2025 Campus Report",
-                  style: TextStyle(color: Colors.black45)),
+              child: Text(
+                "© 2025 Campus Report",
+                style: TextStyle(color: Colors.black45),
+              ),
             ),
           ],
         ),
