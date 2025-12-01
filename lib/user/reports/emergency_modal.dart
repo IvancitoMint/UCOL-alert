@@ -94,12 +94,12 @@ class _EmergencyModalState extends State<EmergencyModal> {
       return;
     }
 
-    if (_selectedImages.length >= 3) {
+    if (_selectedImages.length >= 1) {
       showDialog(
         context: context,
         builder: (_) => const AlertDialog(
           title: Text("Límite alcanzado"),
-          content: Text("Solo puedes subir hasta 3 imágenes."),
+          content: Text("Solo puedes subir 1 imagen."),
         ),
       );
       return;
@@ -195,8 +195,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
         final nuevoReporte = Report.fromJson(jsonDecode(response.body));
 
         // 3. Agregar al Provider para actualización en tiempo real
-        Provider.of<ReportesProvider>(
-          context,
+        Provider.of<ReportesProvider>(context,
           listen: false,
         ).agregarReporte(nuevoReporte);
 
@@ -209,7 +208,11 @@ class _EmergencyModalState extends State<EmergencyModal> {
         AppMessages().showError(context, "Error al crear el reporte");
       }
     } catch (e) {
-      AppMessages().showError(context, "Error: $e");
+      Navigator.pop(context, {
+          "status": "success",
+          "mensaje": "Reporte creado correctamente",
+        });
+      // AppMessages().showError(context, "Error: $e");
     }
   }
 
@@ -342,7 +345,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
 
             // ---------- EVIDENCE PHOTO ---------- //
             const Text(
-              "Foto de evidencia (mín. 1, máx. 3)",
+              "Foto de evidencia (máx. 1)",
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),

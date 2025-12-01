@@ -117,12 +117,12 @@ class _ReportModalState extends State<ReportModal> {
       return;
     }
 
-    if (_selectedImages.length >= 3) {
+    if (_selectedImages.length >= 1) {
       showDialog(
         context: context,
         builder: (_) => const AlertDialog(
           title: Text("Límite alcanzado"),
-          content: Text("Solo puedes subir hasta 3 imágenes."),
+          content: Text("Solo puedes subir 1 imagen."),
         ),
       );
       return;
@@ -337,7 +337,7 @@ class _ReportModalState extends State<ReportModal> {
 
             // FOTOS
             const Text(
-              "Fotos de evidencia (máx. 3) *",
+              "Foto de evidencia (máx. 1) *",
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 10),
