@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'signup_user_page.dart';
 import '../home_page.dart';
 import '../utils/app_messages.dart';
 import '../../main.dart';
 import '../../audio_management.dart';
+import '../utils/session_manager_user.dart';
 
 class LoginUserPage extends StatefulWidget {
   const LoginUserPage({super.key});
@@ -24,29 +26,50 @@ class _LoginUserPageState extends State<LoginUserPage> {
 
     if (email.isEmpty || password.isEmpty) {
       playError();
-      AppMessages().showError(context, "Por favor completa todos los campos para iniciar sesión.");
+      AppMessages().showError(context, "Por favor completa todos los campos.");
       return;
     }
-    
+
     final userData = {
       "username": emailController.text,
       "password": passwordController.text,
     };
 
+    // ===== LOGIN =====
     final url = Uri.parse("${ip}token");
     final res = await http.post(url, headers: {"Content-Type": "application/x-www-form-urlencoded"}, body: userData);
 
     if (res.statusCode == 401) {
       playError();
-      AppMessages().showError(context, "Las credenciales son incorrectas. Intentalo nuevamente.");
+      AppMessages().showError(context, "Credenciales incorrectas.");
       return;
     }
-    Navigator.push(
+
+    // ===== PEDIR ID Y NOMBRE AL BACKEND ===== //
+    final urlUser = Uri.parse("${ip}users/id?email=$email");
+    final resUser = await http.get(urlUser);
+
+    if (resUser.statusCode != 200) {
+      playError();
+      AppMessages().showError(context, "No se pudo obtener la información del usuario.");
+      return;
+    }
+
+    final data = jsonDecode(resUser.body);
+    final String userId = data["id"];
+    final String userName = data["nombre"];
+
+    // ===== GUARDAR DATOS DEL USUARIO ===== //
+    await SessionManagerUser.saveUserData(userId, userName, email);
+
+    // ===== NAVEGAR AL HOME ===== //
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomePage()),
     );
+
     playSuccess();
-    AppMessages().showSuccess(context, "¡Bienvenido de nuevo!");
+    AppMessages().showSuccess(context, "¡Bienvenido, $userName!");
   }
 
   @override

@@ -11,6 +11,8 @@ import 'models/report_card.dart';
 import 'reports/report_modal.dart';
 import 'reports/emergency_modal.dart';
 
+import 'utils/session_manager_user.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -19,14 +21,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Variables de sesión
+  String? userId;
+  String? userName;
+
   @override
   void initState() {
     super.initState();
+    loadUserData();
 
     // Cargar reportes desde la API al iniciar
     Future.microtask(() {
       Provider.of<ReportesProvider>(context, listen: false).cargarReportes();
     });
+  }
+
+  void loadUserData() async {
+    userId = await SessionManagerUser.getUserId();
+    userName = await SessionManagerUser.getUserName();
+    setState(() {});
   }
 
   @override
@@ -46,7 +59,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         elevation: 0.5,
         title: const Text(
-          "Campus Report",
+          "Bienvenido",
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
         centerTitle: false,
@@ -112,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                     comments: r.comentarios.length,
                   ),
                 );
-              }).toList(),
+              }),
 
               const SizedBox(height: 120),
             ],

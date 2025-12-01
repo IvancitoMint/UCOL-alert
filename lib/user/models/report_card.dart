@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/report_model.dart';
 
-import 'likes_model.dart';
 import 'likes_card.dart';
 
 import '../../reportes_provider.dart';
@@ -53,7 +52,7 @@ class ReportCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        report.tiempo,
+                        "${report.tiempo.split("T")[0]} ${report.tiempo.split("T")[1].substring(0, 5)}",
                         style: TextStyle(color: Colors.grey.shade600),
                       ),
                       const SizedBox(width: 6),
