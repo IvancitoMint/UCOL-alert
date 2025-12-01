@@ -27,7 +27,7 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
     }else{
       /// ----------- PRINT USER DATA ---------- //
       final userData = {
-        "email": emailController.text,
+        "username": emailController.text,
         "password": passwordController.text,
       };
       

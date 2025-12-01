@@ -11,7 +11,7 @@ import 'models/report_card.dart';
 import 'reports/report_modal.dart';
 import 'reports/emergency_modal.dart';
 
-import 'utils/session_manager_user.dart';
+import 'utils/session_manager.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

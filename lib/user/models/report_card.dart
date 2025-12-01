@@ -7,7 +7,7 @@ import '../../reportes_provider.dart';
 import 'package:provider/provider.dart';
 import '../../models.dart';
 
-import '../utils/session_manager_user.dart';
+import '../utils/session_manager.dart';
 
 class ReportCard extends StatefulWidget {
   final ReportModel reportUi;

@@ -34,15 +34,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   onChanged: (v) => setState(() => notifications = v!),
                 ),
                 const Divider(),
-                const Text("Privacidad",
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                CheckboxListTile(
-                  title: const Text("Mostrar mi nombre en los reportes"),
-                  value: showName,
-                  onChanged: (v) => setState(() => showName = v!),
-                ),
-                const Divider(),
+                
                 const Text("Idioma",
                     style:
                         TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
