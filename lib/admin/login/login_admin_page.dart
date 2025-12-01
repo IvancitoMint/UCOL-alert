@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../home_page.dart';
 import '../../user/utils/app_messages.dart';
+import '../../main.dart';
+import '../../audio_management.dart';
 
 class LoginAdminPage extends StatefulWidget {
   const LoginAdminPage({super.key});
@@ -14,7 +17,7 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void _login() {
+  void _login() async {
     final account = emailController.text.trim();
     final password = passwordController.text.trim();
 
@@ -23,16 +26,27 @@ class _LoginAdminPageState extends State<LoginAdminPage> {
       return;
     }else{
       /// ----------- PRINT USER DATA ---------- //
-      final nuevosInicioDeSesion = {
+      final userData = {
         "email": emailController.text,
         "password": passwordController.text,
       };
-      print("Inicio de sesion: $nuevosInicioDeSesion");
+      
+      final url = Uri.parse("${ip}users/admin");
+      final res = await http.post(url, headers: {"Content-Type": "application/x-www-form-urlencoded"}, body: userData);
+
+      if (res.statusCode == 401) {
+        AppMessages().showError(context, "Error en las credenciales.");
+        playError();
+        return;
+      }
       
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AdminMain()),
       );
+
+      playSuccess();
+      AppMessages().showSuccess(context, "Bienvenido, administrador.");
     }
 
     // Aquí iría lógica real de autenticación del administrador
