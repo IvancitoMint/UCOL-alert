@@ -105,7 +105,7 @@ class DetalleReportePage extends StatelessWidget {
                     text: "Reportado por: ",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
-                  TextSpan(text: reporte.autor),
+                  TextSpan(text: reporte.autor_nombre),
                 ],
               ),
             ),
