@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'likes_model.dart';
 
-class LikesModal extends StatelessWidget {
+class LikesModal extends StatefulWidget {
   final List<LikeUser> likes;
 
   const LikesModal({super.key, required this.likes});
 
+  @override
+  State<LikesModal> createState() => _LikesModalState();
+}
+
+class _LikesModalState extends State<LikesModal> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -17,6 +22,7 @@ class LikesModal extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // ----- Handle bar -----
           Container(
             width: 50,
             height: 5,
@@ -35,14 +41,14 @@ class LikesModal extends StatelessWidget {
             ),
           ),
 
-          // ---------- LISTA DE LIKES ----------
+          // ----- LISTA DE USUARIOS -----
           Flexible(
             child: ListView.separated(
               shrinkWrap: true,
-              itemCount: likes.length,
-              separatorBuilder: (_, __) => Divider(height: 1),
+              itemCount: widget.likes.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (_, i) {
-                final u = likes[i];
+                final u = widget.likes[i];
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(u.photoUrl),
