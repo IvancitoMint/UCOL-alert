@@ -3,13 +3,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+
 import '../../reportes_provider.dart';
 import 'package:provider/provider.dart';
 import '../../models.dart';
-
 import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
 import '../../../api_service.dart';
+
+import '../utils/session_manager_user.dart';
 
 class EmergencyModal extends StatefulWidget {
   const EmergencyModal({super.key});
@@ -19,6 +21,10 @@ class EmergencyModal extends StatefulWidget {
 }
 
 class _EmergencyModalState extends State<EmergencyModal> {
+  // Variables de sesión
+  String? userId;
+  String? userName;
+
   // ---------- VARIABLES ---------- //
   final List<File> _selectedImages = [];
   final TextEditingController _descriptionController = TextEditingController();
@@ -48,6 +54,24 @@ class _EmergencyModalState extends State<EmergencyModal> {
     "Laboratorio de Mecatronica",
     "Estacionamiento",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  void loadUserData() async {
+    final id = await SessionManagerUser.getUserId();
+    final name = await SessionManagerUser.getUserName();
+
+    if (!mounted) return;
+
+    setState(() {
+      userId = id;
+      userName = name;
+    });
+  }
 
   @override
   void dispose() {
@@ -133,8 +157,6 @@ class _EmergencyModalState extends State<EmergencyModal> {
       return;
     }
 
-    final String autorSimulado = "usuario_demo_123";
-
     // ---------- SUBIR IMÁGENES ---------- //
     List<String> uploadedImageUrls = [];
     try {
@@ -149,7 +171,7 @@ class _EmergencyModalState extends State<EmergencyModal> {
 
     // ---------- CREAR JSON PARA API ---------- //
     final Map<String, dynamic> data = {
-      "autor": autorSimulado,
+      "autor": userId,
       "estatus": "Pendiente",
       "descripcion": _descriptionController.text,
       "ubicacion": _selectedLocation,

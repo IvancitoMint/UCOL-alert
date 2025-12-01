@@ -8,6 +8,9 @@ import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
 import '../../../api_service.dart'; // ★ IMPORTANTE: tu servicio de API
 
+import '../utils/session_manager_user.dart';
+
+
 // ---------- FUNCIÓN PRIVADA DE SUBIDA A CLOUDINARY ----------
 Future<String> uploadImageToCloudinary(File image) async {
   final uri = Uri.parse('https://api.cloudinary.com/v1_1/dilwitdws/image/upload');
@@ -31,6 +34,10 @@ class ReportModal extends StatefulWidget {
 }
 
 class _ReportModalState extends State<ReportModal> {
+  // Variables de sesión
+  String? userId;
+  String? userName;
+
   // ---------- VARIABLES ---------- //
   final List<File> _selectedImages = [];
   final TextEditingController _descriptionController = TextEditingController();
@@ -71,6 +78,24 @@ class _ReportModalState extends State<ReportModal> {
     "Tecnología",
     "Otro",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  void loadUserData() async {
+    final id = await SessionManagerUser.getUserId();
+    final name = await SessionManagerUser.getUserName();
+
+    if (!mounted) return;
+
+    setState(() {
+      userId = id;
+      userName = name;
+    });
+  }
 
   @override
   void dispose() {
@@ -157,9 +182,6 @@ class _ReportModalState extends State<ReportModal> {
       return;
     }
 
-    // ★ Autor simulado
-    final String autorSimulado = "usuario_demo_123";
-
     // ★ Subimos todas las imágenes a Cloudinary y obtenemos sus URLs
     List<String> uploadedImageUrls = [];
     try {
@@ -174,7 +196,7 @@ class _ReportModalState extends State<ReportModal> {
 
     // ★ Armamos el objeto según tu backend
     final Map<String, dynamic> data = {
-      "autor": autorSimulado,
+      "autor": userId,
       "estatus": "No revisado",
       "descripcion": _descriptionController.text,
       "ubicacion": _selectedLocation,

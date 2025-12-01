@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/report_model.dart';
 
-import 'likes_model.dart';
 import 'likes_card.dart';
 
 import '../../reportes_provider.dart';
