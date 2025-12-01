@@ -111,7 +111,8 @@ class _HomePageState extends State<HomePage> {
               // ---------- REPORT LIST ---------- //
               ...reportes.map((r) {
                 return ReportCard(
-                  report: ReportModel(
+                  reportUi: ReportModel(
+                    id: r.id,
                     usuario: r.autor,
                     avatarUrl:
                         "https://ui-avatars.com/api/?name=${r.autor}", // avatar temporal
@@ -124,6 +125,7 @@ class _HomePageState extends State<HomePage> {
                     likes: r.likes,
                     comments: r.comentarios.length,
                   ),
+                  reportBackend: r,
                 );
               }),
 

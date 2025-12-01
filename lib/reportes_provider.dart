@@ -12,6 +12,7 @@ import 'user/models/likes_model.dart';
 import '../main.dart';
 
 class ReportesProvider extends ChangeNotifier {
+  final String currentUserId = "user123"; // simulado
   List<Report> _reportesBackend = []; // crudo del backend
   List<ReportModel> _reportesUI = []; // listo para UI
 
@@ -40,6 +41,7 @@ class ReportesProvider extends ChangeNotifier {
       // 2. Convertir a ReportModel (UI)
       _reportesUI = _reportesBackend.map((r) {
         return ReportModel(
+          id: r.id,
           usuario: r.autor,
           avatarUrl: r.foto.first ?? "",
           tiempo: r.fecha.creacion,
@@ -92,6 +94,7 @@ class ReportesProvider extends ChangeNotifier {
     if (index != -1) {
       final r = _reportesUI[index];
       _reportesUI[index] = ReportModel(
+        id: r.id,
         usuario: r.usuario,
         avatarUrl: r.avatarUrl,
         tiempo: r.tiempo,
@@ -104,6 +107,87 @@ class ReportesProvider extends ChangeNotifier {
         comments: r.comments,
       );
       notifyListeners();
+    }
+  }
+
+  Future<void> actualizarReporteCompleto(Report reporte) async {
+    final url = Uri.parse("$apiUrl/${reporte.id}");
+
+    final body = jsonEncode({
+      "id": reporte.id,
+      "autor": reporte.autor,
+      "estatus": reporte.estatus,
+      "descripcion": reporte.descripcion,
+      "ubicacion": reporte.ubicacion,
+      "categoria": reporte.categoria,
+      "foto": reporte.foto,
+      "likes": reporte.likes,
+      "comentarios": reporte.comentarios,
+      "emergencia": reporte.emergencia,
+      "fecha": {
+        "creacion": reporte.fecha.creacion,
+        "actualizacion": DateTime.now().toIso8601String(),
+      },
+    });
+
+    final res = await http.put(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: body,
+    );
+
+    if (res.statusCode == 200) {
+      print("Reporte actualizado correctamente.");
+    } else {
+      print("Error al actualizar reporte: ${res.body}");
+    }
+  }
+
+  Future<void> updateLikes(
+    Report reporteBackend,
+    List<String> nuevosLikes,
+  ) async {
+    final url = Uri.parse("${ip}reportes/${reporteBackend.id}");
+
+    // Crear copia actualizada
+    final cuerpo = reporteBackend.toJson();
+    cuerpo["likes"] = nuevosLikes;
+
+    final res = await http.put(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(cuerpo),
+    );
+
+    if (res.statusCode == 200) {
+      // Actualiza en memoria
+      final index = _reportesUI.indexWhere((r) => r.id == reporteBackend.id);
+      if (index != -1) {
+        _reportesBackend[index] = Report.fromJson(jsonDecode(res.body));
+      }
+
+      notifyListeners();
+    }
+  }
+
+  Future<void> toggleLike(String reportId, String userId) async {
+    try {
+      final res = await http.put(
+        Uri.parse("$apiUrl/likes?reporte_id=$reportId&user_id=$userId"),
+      );
+
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+
+        // Buscar reporte en la lista
+        final index = _reportesUI.indexWhere((r) => r.id == reportId);
+        if (index != -1) {
+          _reportesUI[index].likes = List<String>.from(data["likes"]);
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      print("Error toggling like: $e");
     }
   }
 

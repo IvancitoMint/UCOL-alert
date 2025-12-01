@@ -5,11 +5,34 @@ import 'likes_card.dart';
 
 import '../../reportes_provider.dart';
 import 'package:provider/provider.dart';
+import '../../models.dart';
 
 class ReportCard extends StatelessWidget {
-  final ReportModel report;
+  final ReportModel reportUi; // lo visual
+  final Report reportBackend; // el del backend
 
-  const ReportCard({super.key, required this.report});
+  const ReportCard({
+    super.key,
+    required this.reportUi,
+    required this.reportBackend,
+  });
+
+  void _toggleLike(BuildContext context) async {
+    final provider = Provider.of<ReportesProvider>(context, listen: false);
+
+    const String usuarioId = "ID_USUARIO"; // Obtén el id real
+
+    List<String> nuevosLikes = List.from(reportBackend.likes);
+
+    if (nuevosLikes.contains(usuarioId)) {
+      nuevosLikes.remove(usuarioId);
+    } else {
+      nuevosLikes.add(usuarioId);
+    }
+
+    // Llamar al provider con el reporte del backend
+    await provider.updateLikes(reportBackend, nuevosLikes);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +57,7 @@ class ReportCard extends StatelessWidget {
           Row(
             children: [
               CircleAvatar(
-                backgroundImage: NetworkImage(report.avatarUrl),
+                backgroundImage: NetworkImage(reportUi.avatarUrl),
                 radius: 22,
               ),
               const SizedBox(width: 12),
@@ -43,7 +66,7 @@ class ReportCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    report.usuario,
+                    reportUi.usuario,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -52,14 +75,14 @@ class ReportCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        "${report.tiempo.split("T")[0]} ${report.tiempo.split("T")[1].substring(0, 5)}",
+                        "${reportUi.tiempo.split("T")[0]} ${reportUi.tiempo.split("T")[1].substring(0, 5)}",
                         style: TextStyle(color: Colors.grey.shade600),
                       ),
                       const SizedBox(width: 6),
                       const Icon(Icons.circle, size: 4),
                       const SizedBox(width: 6),
                       Text(
-                        report.ubicacion,
+                        reportUi.ubicacion,
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 13,
@@ -82,7 +105,7 @@ class ReportCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  report.estado,
+                  reportUi.estado,
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF996F00),
@@ -94,7 +117,7 @@ class ReportCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          Text(report.descripcion, style: const TextStyle(fontSize: 15)),
+          Text(reportUi.descripcion, style: const TextStyle(fontSize: 15)),
 
           const SizedBox(height: 10),
 
@@ -105,21 +128,21 @@ class ReportCard extends StatelessWidget {
               color: Colors.blue.shade50,
             ),
             child: Text(
-              report.categoria,
+              reportUi.categoria,
               style: TextStyle(color: Colors.blue.shade700),
             ),
           ),
 
           const SizedBox(height: 16),
 
-          if (report.imagenUrl.isNotEmpty)
+          if (reportUi.imagenUrl.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(14),
               child: SizedBox(
                 height: 200,
                 width: double.infinity,
                 child: Image.network(
-                  report.imagenUrl,
+                  reportUi.imagenUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     // Si la imagen falla, NO muestra nada (evita overflow)
@@ -140,7 +163,7 @@ class ReportCard extends StatelessWidget {
                 listen: false,
               );
               final usuarios = await provider.cargarUsuariosDeLikes(
-                report.likes,
+                reportUi.likes,
               );
 
               showModalBottomSheet(
@@ -150,16 +173,21 @@ class ReportCard extends StatelessWidget {
                 builder: (_) => LikesModal(likes: usuarios),
               );
             },
-            child: Row(
-              children: [
-                Icon(
-                  Icons.thumb_up_alt_outlined,
-                  size: 22,
-                  color: Colors.grey.shade600,
-                ),
-                const SizedBox(width: 4),
-                Text("${report.likes.length}"),
-              ],
+            child: GestureDetector(
+              onTap: () => _toggleLike(context),
+              child: Row(
+                children: [
+                  Icon(
+                    reportUi.likes.contains("ID_DEL_USUARIO_LOGEADO")
+                        ? Icons.thumb_up
+                        : Icons.thumb_up_alt_outlined,
+                    size: 22,
+                    color: Colors.blue,
+                  ),
+                  const SizedBox(width: 4),
+                  Text("${reportUi.likes.length}"),
+                ],
+              ),
             ),
           ),
         ],
