@@ -4,7 +4,7 @@ import 'profile_page.dart';
 import 'my_reports_page.dart';
 import 'settings_page.dart';
 
-import '../utils/session_manager_user.dart';
+import '../utils/session_manager.dart';
 
 class SideBar extends StatefulWidget {
   const SideBar({super.key});

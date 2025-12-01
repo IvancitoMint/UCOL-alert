@@ -11,7 +11,7 @@ import '../utils/ask_permissions.dart';
 import '../utils/app_messages.dart';
 import '../../../api_service.dart';
 
-import '../utils/session_manager_user.dart';
+import '../utils/session_manager.dart';
 
 class EmergencyModal extends StatefulWidget {
   const EmergencyModal({super.key});

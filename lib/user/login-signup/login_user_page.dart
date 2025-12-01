@@ -7,7 +7,7 @@ import '../home_page.dart';
 import '../utils/app_messages.dart';
 import '../../main.dart';
 import '../../audio_management.dart';
-import '../utils/session_manager_user.dart';
+import '../utils/session_manager.dart';
 
 class LoginUserPage extends StatefulWidget {
   const LoginUserPage({super.key});
