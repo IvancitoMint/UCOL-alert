@@ -1,4 +1,5 @@
 class ReportModel {
+  final String id;
   final String usuario;
   final String avatarUrl;
   final String tiempo;
@@ -7,10 +8,11 @@ class ReportModel {
   final String descripcion;
   final String categoria;
   final String imagenUrl;
-  final List likes;
+  List likes;
   final int comments;
 
   ReportModel({
+    required this.id,
     required this.usuario,
     required this.avatarUrl,
     required this.tiempo,
@@ -23,20 +25,19 @@ class ReportModel {
     required this.comments,
   });
 
-  factory ReportModel.fromJson(Map<String, dynamic> json) {
+  ReportModel copyWith({List<String>? likes}) {
     return ReportModel(
-      usuario: json["usuario"],
-      avatarUrl: json["avatarUrl"],
-      tiempo: json["tiempo"],
-      ubicacion: json["ubicacion"],
-      estado: json["estado"],
-      descripcion: json["descripcion"],
-      categoria: json["categoria"],
-      imagenUrl: json["imagenUrl"],
-      likes: json["likes"] != null
-          ? List<String>.from(json["likes"])
-          : <String>[],
-      comments: json["comments"] ?? 0,
+      id: id,
+      usuario: usuario,
+      avatarUrl: avatarUrl,
+      tiempo: tiempo,
+      ubicacion: ubicacion,
+      estado: estado,
+      descripcion: descripcion,
+      categoria: categoria,
+      imagenUrl: imagenUrl,
+      likes: likes ?? this.likes,
+      comments: comments,
     );
   }
 }
