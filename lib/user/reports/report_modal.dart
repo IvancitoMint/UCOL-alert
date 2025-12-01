@@ -10,7 +10,6 @@ import '../../../api_service.dart'; // ★ IMPORTANTE: tu servicio de API
 
 import '../utils/session_manager.dart';
 
-
 // ---------- FUNCIÓN PRIVADA DE SUBIDA A CLOUDINARY ----------
 Future<String> uploadImageToCloudinary(File image) async {
   final uri = Uri.parse('https://api.cloudinary.com/v1_1/dilwitdws/image/upload');

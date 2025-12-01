@@ -1,8 +1,19 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class MyReportsPage extends StatelessWidget {
+import '../../main.dart';
+import '../utils/app_messages.dart';
+import '../utils/session_manager.dart';
+
+class MyReportsPage extends StatefulWidget {
   const MyReportsPage({super.key});
 
+  @override
+  State<MyReportsPage> createState() => _MyReportsPageState();
+}
+
+class _MyReportsPageState extends State<MyReportsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
