@@ -120,7 +120,11 @@ class DetalleReportePage extends StatelessWidget {
                     text: "Fecha: ",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
+<<<<<<< HEAD
                   TextSpan(text: "${reporte.fecha.creacion.split("T")[0]} ${reporte.fecha.creacion.split("T")[1].substring(0,5)}"),
+=======
+                  TextSpan(text: "${reporte.fecha.creacion.split("T")[0]} ${reporte.fecha.creacion.split("T")[1].substring(0, 5)}"),
+>>>>>>> d6ff12fd254eac411d4707a57fbc1676433a8502
                 ],
               ),
             ),
